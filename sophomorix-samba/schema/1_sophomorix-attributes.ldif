@@ -7,7 +7,7 @@
 dn: CN=Sophomorix-Unique-ID,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Unique-ID
-attributeID: 4.6.6.6.1.1
+attributeID: 1.3.6.1.4.1.47512.1.1.1
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Unique-ID
 distinguishedName: CN=Sophomorix-Unique-ID,<SchemaContainerDN>
@@ -28,7 +28,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Exit-Unique-ID,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Exit-Unique-ID
-attributeID: 4.6.6.6.1.2
+attributeID: 1.3.6.1.4.1.47512.1.1.2
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Exit-Unique-ID
 distinguishedName: CN=Sophomorix-Exit-Unique-ID,<SchemaContainerDN>
@@ -49,7 +49,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Quota,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Quota
-attributeID: 4.6.6.6.1.3
+attributeID: 1.3.6.1.4.1.47512.1.1.3
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Quota
 distinguishedName: CN=Sophomorix-Quota,<SchemaContainerDN>
@@ -70,7 +70,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Mail-Quota,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Mail-Quota
-attributeID: 4.6.6.6.1.4
+attributeID: 1.3.6.1.4.1.47512.1.1.4
 attributeSyntax: 2.5.5.9
 cn: Sophomorix-Mail-Quota
 distinguishedName: CN=Sophomorix-Mail-Quota,<SchemaContainerDN>
@@ -91,7 +91,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Status,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Status
-attributeID: 4.6.6.6.1.5
+attributeID: 1.3.6.1.4.1.47512.1.1.5
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Status
 distinguishedName: CN=Sophomorix-Status,<SchemaContainerDN>
@@ -112,7 +112,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Creation-Date,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Creation-Date
-attributeID: 4.6.6.6.1.6
+attributeID: 1.3.6.1.4.1.47512.1.1.6
 attributeSyntax: 2.5.5.11
 cn: Sophomorix-Creation-Date
 distinguishedName: CN=Sophomorix-Creation-Date,<SchemaContainerDN>
@@ -124,7 +124,7 @@ name: Sophomorix-Creation-Date
 objectCategory: CN=Attribute-Schema,<SchemaContainerDN>
 objectClass: top
 objectClass: attributeSchema
-oMSyntax: 23
+oMSyntax: 24
 schemaIDGUID:: 4CQA0pa2R5K2yeA8jdHOcQ==
 showInAdvancedViewOnly: TRUE
 searchFlags: 1
@@ -133,7 +133,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Toleration-Date,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Toleration-Date
-attributeID: 4.6.6.6.1.7
+attributeID: 1.3.6.1.4.1.47512.1.1.7
 attributeSyntax: 2.5.5.11
 cn: Sophomorix-Toleration-Date
 distinguishedName: CN=Sophomorix-Toleration-Date,<SchemaContainerDN>
@@ -145,7 +145,7 @@ name: Sophomorix-Toleration-Date
 objectCategory: CN=Attribute-Schema,<SchemaContainerDN>
 objectClass: top
 objectClass: attributeSchema
-oMSyntax: 23
+oMSyntax: 24
 schemaIDGUID:: 9v1uthsKRxe1r6OALGk7hw==
 showInAdvancedViewOnly: TRUE
 searchFlags: 1
@@ -154,7 +154,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Deactivation-Date,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Deactivation-Date
-attributeID: 4.6.6.6.1.8
+attributeID: 1.3.6.1.4.1.47512.1.1.8
 attributeSyntax: 2.5.5.11
 cn: Sophomorix-Deactivation-Date
 distinguishedName: CN=Sophomorix-Deactivation-Date,<SchemaContainerDN>
@@ -166,7 +166,7 @@ name: Sophomorix-Deactivation-Date
 objectCategory: CN=Attribute-Schema,<SchemaContainerDN>
 objectClass: top
 objectClass: attributeSchema
-oMSyntax: 23
+oMSyntax: 24
 schemaIDGUID:: K+im6KJyTi+PbgJ6Z7hxHQ==
 showInAdvancedViewOnly: TRUE
 searchFlags: 1
@@ -175,7 +175,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Admin-Class,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Admin-Class
-attributeID: 4.6.6.6.1.9
+attributeID: 1.3.6.1.4.1.47512.1.1.9
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Admin-Class
 distinguishedName: CN=Sophomorix-Admin-Class,<SchemaContainerDN>
@@ -196,7 +196,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Exit-Admin-Class,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Exit-Admin-Class
-attributeID: 4.6.6.6.1.10
+attributeID: 1.3.6.1.4.1.47512.1.1.10
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Exit-Admin-Class
 distinguishedName: CN=Sophomorix-Exit-Admin-Class,<SchemaContainerDN>
@@ -217,7 +217,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Subclass,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Subclass
-attributeID: 4.6.6.6.1.11
+attributeID: 1.3.6.1.4.1.47512.1.1.11
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Subclass
 distinguishedName: CN=Sophomorix-Subclass,<SchemaContainerDN>
@@ -238,7 +238,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-First-Password,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-First-Password
-attributeID: 4.6.6.6.1.12
+attributeID: 1.3.6.1.4.1.47512.1.1.12
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-First-Password
 distinguishedName: CN=Sophomorix-First-Password,<SchemaContainerDN>
@@ -259,7 +259,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Firstname-ASCII,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Firstname-ASCII
-attributeID: 4.6.6.6.1.13
+attributeID: 1.3.6.1.4.1.47512.1.1.13
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Firstname-ASCII
 distinguishedName: CN=Sophomorix-Firstname-ASCII,<SchemaContainerDN>
@@ -280,7 +280,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Surname-ASCII,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Surname-ASCII
-attributeID: 4.6.6.6.1.14
+attributeID: 1.3.6.1.4.1.47512.1.1.14
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Surname-ASCII
 distinguishedName: CN=Sophomorix-Surname-ASCII,<SchemaContainerDN>
@@ -301,7 +301,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Role,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Role
-attributeID: 4.6.6.6.1.15
+attributeID: 1.3.6.1.4.1.47512.1.1.15
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Role
 distinguishedName: CN=Sophomorix-Role,<SchemaContainerDN>
@@ -322,7 +322,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-School-Prefix,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-School-Prefix
-attributeID: 4.6.6.6.1.16
+attributeID: 1.3.6.1.4.1.47512.1.1.16
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-School-Prefix
 distinguishedName: CN=Sophomorix-School-Prefix,<SchemaContainerDN>
@@ -343,7 +343,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Schoolname,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Schoolname
-attributeID: 4.6.6.6.1.17
+attributeID: 1.3.6.1.4.1.47512.1.1.17
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Schoolname
 distinguishedName: CN=Sophomorix-Schoolname,<SchemaContainerDN>
@@ -366,7 +366,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Auto-Members,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Auto-Members
-attributeID: 4.6.6.6.1.18
+attributeID: 1.3.6.1.4.1.47512.1.1.18
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Auto-Members
 distinguishedName: CN=Sophomorix-Auto-Members,<SchemaContainerDN>
@@ -387,7 +387,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Schooltype,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Schooltype
-attributeID: 4.6.6.6.1.19
+attributeID: 1.3.6.1.4.1.47512.1.1.19
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Schooltype
 distinguishedName: CN=Sophomorix-Schooltype,<SchemaContainerDN>
@@ -408,7 +408,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Department,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Department
-attributeID: 4.6.6.6.1.20
+attributeID: 1.3.6.1.4.1.47512.1.1.20
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Department
 distinguishedName: CN=Sophomorix-Department,<SchemaContainerDN>
@@ -429,7 +429,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Type,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Type
-attributeID: 4.6.6.6.1.21
+attributeID: 1.3.6.1.4.1.47512.1.1.21
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Type
 distinguishedName: CN=Sophomorix-Type,<SchemaContainerDN>
@@ -450,7 +450,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Mail-Alias,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Mail-Alias
-attributeID: 4.6.6.6.1.22
+attributeID: 1.3.6.1.4.1.47512.1.1.22
 attributeSyntax: 2.5.5.8
 cn: Sophomorix-Mail-Alias
 distinguishedName: CN=Sophomorix-Mail-Alias,<SchemaContainerDN>
@@ -471,7 +471,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Mail-List,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Mail-List
-attributeID: 4.6.6.6.1.23
+attributeID: 1.3.6.1.4.1.47512.1.1.23
 attributeSyntax: 2.5.5.8
 cn: Sophomorix-Mail-List
 distinguishedName: CN=Sophomorix-Mail-List,<SchemaContainerDN>
@@ -492,7 +492,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Add-Quota,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Add-Quota
-attributeID: 4.6.6.6.1.24
+attributeID: 1.3.6.1.4.1.47512.1.1.24
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Add-Quota
 distinguishedName: CN=Sophomorix-Add-Quota,<SchemaContainerDN>
@@ -513,7 +513,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Add-Mail-Quota,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Add-Mail-Quota
-attributeID: 4.6.6.6.1.25
+attributeID: 1.3.6.1.4.1.47512.1.1.25
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Add-Mail-Quota
 distinguishedName: CN=Sophomorix-Add-Mail-Quota,<SchemaContainerDN>
@@ -534,7 +534,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Joinable,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Joinable
-attributeID: 4.6.6.6.1.26
+attributeID: 1.3.6.1.4.1.47512.1.1.26
 attributeSyntax: 2.5.5.8
 cn: Sophomorix-Joinable
 distinguishedName: CN=Sophomorix-Joinable,<SchemaContainerDN>
@@ -555,7 +555,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Enddate,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Enddate
-attributeID: 4.6.6.6.1.27
+attributeID: 1.3.6.1.4.1.47512.1.1.27
 attributeSyntax: 2.5.5.11
 cn: Sophomorix-Enddate
 distinguishedName: CN=Sophomorix-Enddate,<SchemaContainerDN>
@@ -567,7 +567,7 @@ name: Sophomorix-Enddate
 objectCategory: CN=Attribute-Schema,<SchemaContainerDN>
 objectClass: top
 objectClass: attributeSchema
-oMSyntax: 23
+oMSyntax: 24
 schemaIDGUID:: njlgy/aDTHC9CIwhELNoLA==
 showInAdvancedViewOnly: TRUE
 searchFlags: 0
@@ -576,7 +576,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Longname,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Longname
-attributeID: 4.6.6.6.1.28
+attributeID: 1.3.6.1.4.1.47512.1.1.28
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Longname
 distinguishedName: CN=Sophomorix-Longname,<SchemaContainerDN>
@@ -597,7 +597,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Max-Members,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Max-Members
-attributeID: 4.6.6.6.1.29
+attributeID: 1.3.6.1.4.1.47512.1.1.29
 attributeSyntax: 2.5.5.9
 cn: Sophomorix-Max-Members
 distinguishedName: CN=Sophomorix-Max-Members,<SchemaContainerDN>
@@ -618,7 +618,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Members,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Members
-attributeID: 4.6.6.6.1.30
+attributeID: 1.3.6.1.4.1.47512.1.1.30
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Members
 distinguishedName: CN=Sophomorix-Members,<SchemaContainerDN>
@@ -639,7 +639,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Member-Groups,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Member-Groups
-attributeID: 4.6.6.6.1.31
+attributeID: 1.3.6.1.4.1.47512.1.1.31
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Member-Groups
 distinguishedName: CN=Sophomorix-Member-Groups,<SchemaContainerDN>
@@ -660,7 +660,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Admins,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Admins
-attributeID: 4.6.6.6.1.32
+attributeID: 1.3.6.1.4.1.47512.1.1.32
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Admins
 distinguishedName: CN=Sophomorix-Admins,<SchemaContainerDN>
@@ -681,7 +681,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Admin-Groups,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Admin-Groups
-attributeID: 4.6.6.6.1.33
+attributeID: 1.3.6.1.4.1.47512.1.1.33
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Admin-Groups
 distinguishedName: CN=Sophomorix-Admin-Groups,<SchemaContainerDN>
@@ -702,7 +702,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Member-Projects,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Member-Projects
-attributeID: 4.6.6.6.1.34
+attributeID: 1.3.6.1.4.1.47512.1.1.34
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Member-Projects
 distinguishedName: CN=Sophomorix-Member-Projects,<SchemaContainerDN>
@@ -723,7 +723,7 @@ systemOnly: FALSE
 dn: CN=Sophomorix-Admin-Projects,<SchemaContainerDN>
 changetype: add
 adminDisplayName: Sophomorix-Admin-Projects
-attributeID: 4.6.6.6.1.35
+attributeID: 1.3.6.1.4.1.47512.1.1.35
 attributeSyntax: 2.5.5.12
 cn: Sophomorix-Admin-Projects
 distinguishedName: CN=Sophomorix-Admin-Projects,<SchemaContainerDN>

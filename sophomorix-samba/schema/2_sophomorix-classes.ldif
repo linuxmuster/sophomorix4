@@ -10,7 +10,7 @@ adminDescription: Sophomorix-User
 adminDisplayName: Sophomorix-User
 cn: Sophomorix-User
 defaultHidingValue: TRUE
-governsID: 4.6.6.6.2.1
+governsID: 1.3.6.1.4.1.47512.1.2.1
 instanceType: 4
 lDAPDisplayName: sophomorixUser
 name: Sophomorix-User
@@ -52,7 +52,7 @@ adminDescription: Sophomorix-Group
 adminDisplayName: Sophomorix-Group
 cn: Sophomorix-Group
 defaultHidingValue: TRUE
-governsID: 4.6.6.6.2.2
+governsID: 1.3.6.1.4.1.47512.1.2.2
 instanceType: 4
 lDAPDisplayName: sophomorixGroup
 name: Sophomorix-Group
@@ -85,7 +85,7 @@ adminDescription: Sophomorix-Project
 adminDisplayName: Sophomorix-Project
 cn: Sophomorix-Project
 defaultHidingValue: TRUE
-governsID: 4.6.6.6.2.3
+governsID: 1.3.6.1.4.1.47512.1.2.3
 instanceType: 4
 lDAPDisplayName: sophomorixProject
 name: Sophomorix-Project
