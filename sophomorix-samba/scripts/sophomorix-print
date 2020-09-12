@@ -641,7 +641,8 @@ sub latex_datablock_from_list {
         $dataline_count++;
         if ($dataline_count==1){
             # first sophomorixdatabox must be preceeded by sophomorixnewpage
-            $latex_datablock=$latex_datablock."\\sophomorixnewpage{".$chead."}{}{}{}{}{}{}{}{}%\n";
+	    my $latex_chead=&string_to_latex($chead);
+            $latex_datablock=$latex_datablock."\\sophomorixnewpage{".$latex_chead."}{}{}{}{}{}{}{}{}%\n";
         }
         my @data=split(/;/,$item);
         my $lastname= &string_to_latex($data[0]);
@@ -649,9 +650,9 @@ sub latex_datablock_from_list {
         my $login=    &string_to_latex($data[2]);
         my $password= &string_to_latex($data[3]);
         my $school=   &string_to_latex($data[4]);
+        my $class=    &string_to_latex($data[5]);
         my $role=     &string_to_latex($data[8]);
 	my $workgroup=&string_to_latex($sophomorix_config{'samba'}{'smb.conf'}{'global'}{'workgroup'});
-        my $class=&string_to_latex($data[5]);
         $latex_datablock=$latex_datablock."\\sophomorixdatabox{".$lastname."}".
                                           "{".$firstname."}".
                                           "{".$login."}".
@@ -809,8 +810,9 @@ sub latex_from_template_and_datablock {
         }
  
         # (use hyphen here for template)
+	my $latex_file_basename = &string_to_latex($output_file_basename);
         $line=~s/\\textcolor\{red\}\{SCHOOL-LONGNAME\}/$schoolstring/;
-        $line=~s/\\textcolor\{red\}\{FILENAME\}/$output_file_basename/;
+        $line=~s/\\textcolor\{red\}\{FILENAME\}/$latex_file_basename/;
         $line=~s/\\textcolor\{red\}\{ADMINS-PRINT\}/$admins_print/;
 
 
