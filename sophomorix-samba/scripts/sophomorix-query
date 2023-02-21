@@ -756,6 +756,7 @@ if (defined $options{'user-minimal'}){
         'displayName',
         'sn',
         'givenName',
+	'homeDirectory',
         'sophomorixFirstnameASCII',
         'sophomorixSurnameASCII',
         'sophomorixFirstnameInitial',
