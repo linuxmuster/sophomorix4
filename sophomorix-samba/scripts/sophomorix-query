@@ -1065,7 +1065,7 @@ for( my $index = 0 ; $index < $max ; $index++) {
     if (defined $options{'quota-usage'}){
         foreach my $sophomorix_quota (@{$search{$top_key}{$sam}{'sophomorixQuota'} }){
             my ($share,$value,$oldcalc,$quotastatus,$comment)=split(/:/,$sophomorix_quota);
-            my $smbcquotas_command="/usr/bin/smbcquotas -mNT1 -U administrator%`cat /etc/linuxmuster/.secret/administrator`".
+            my $smbcquotas_command="/usr/bin/smbcquotas -U administrator%`cat /etc/linuxmuster/.secret/administrator`".
                 " -u $sam //".$root_dns."/".$share." 2> /dev/null";
             #print "   $smbcquotas_command\n";
             # run the command
