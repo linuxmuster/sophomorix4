@@ -179,7 +179,7 @@ foreach my $linux_path (@linux_paths){
                      " -U ".$user."%`cat /etc/linuxmuster/.secret/administrator` ".$smb_unc." -c 'allinfo \"".$smb_rel."\"'";
             } elsif ($stat==1){
                 $command=$sophomorix_config{'INI'}{'EXECUTABLES'}{'SMBCLIENT'}.
-                     " -U ".$user."%`cat /etc/linuxmuster/.secret/administrator` ".$smb_unc." -mNT1 -c 'stat \"".$smb_rel."\"'";
+                     " -U ".$user."%`cat /etc/linuxmuster/.secret/administrator` ".$smb_unc." -c 'stat \"".$smb_rel."\"'";
             } elsif ($ls==1){
                 $command=$sophomorix_config{'INI'}{'EXECUTABLES'}{'SMBCLIENT'}.
                      " -U ".$user."%`cat /etc/linuxmuster/.secret/administrator` ".$smb_unc." -c 'cd \"".$smb_rel."\"; ls'";
