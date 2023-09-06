@@ -814,8 +814,9 @@ sub latex_from_template_and_datablock {
         }
  
         # (use hyphen here for template)
+	my $filename_footer=&string_to_latex($output_file_basename);
         $line=~s/\\textcolor\{red\}\{SCHOOL-LONGNAME\}/$schoolstring/;
-        $line=~s/\\textcolor\{red\}\{FILENAME\}/$output_file_basename/;
+        $line=~s/\\textcolor\{red\}\{FILENAME\}/$filename_footer/;
         $line=~s/\\textcolor\{red\}\{ADMINS-PRINT\}/$admins_print/;
 
 
