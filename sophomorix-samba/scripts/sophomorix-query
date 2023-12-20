@@ -18,6 +18,8 @@ $Data::Dumper::Terse = 1;
 use JSON;
 use Sophomorix::SophomorixBase qw(
                                  analyze_smbcquotas_out
+                                 result_sophomorix_init
+                                 config_sophomorix_read
                                  );
 use Sophomorix::SophomorixSambaAD qw(
                                  AD_bind_admin
@@ -80,6 +82,7 @@ my $testopt=GetOptions(\%options,
                         "query-ip=s",
                         "query-comp=s",
                         "query-user=s",
+                        "prefer-ip=s",
                         "query-room=s"
     );
 
@@ -182,6 +185,7 @@ Query room data with smbstatus command:
 --smbstatus --query-ip <ip>       (show room that contains computer with <ip>)
 --smbstatus --query-comp <comp>   (show room that contains computer <comp>)
 --smbstatus --query-user <user>   (show room where <user> is logged in)
+    --prefer-ip <ip>              (optional: if there is a smb connection for <user> from <ip>, prefer it)
 --smbstatus --query-room <room>   (show room <room>)
 
 Limit the query to one or more sophomorixStatus:
@@ -362,6 +366,20 @@ if (defined $options{'smbstatus'}){
     #my $string=`cat /root/log1`;
     my @lines=split("\n",$string);
     #print "$string";
+    my $prefered_ip=NetAddr::IP->new("0.0.0.0/0");
+    if (defined $options{'prefer-ip'}){
+        $prefered_ip=NetAddr::IP->new($options{'prefer-ip'})
+    }
+    # TODO (XRM): get ignored ips or the file itself from config
+    my $ignored_networks_file="/etc/linuxmuster/sophomorix/sophomorix-query.ignored_nets.txt";
+    my @ignored_networks=();
+    my $count=0;
+    open(IGNORED_NETWORKS,"$ignored_networks_file") ||
+        die "ERROR: $ignored_networks_file not found!";
+    while(<IGNORED_NETWORKS>){
+        $ignored_networks[$count++] = NetAddr::IP->new($_);
+    }
+    close(IGNORED_NETWORKS);
     # first loop: get computers
     foreach my $entry (@lines){
         my ($pid)=split(/ /,$entry);
@@ -381,10 +399,28 @@ if (defined $options{'smbstatus'}){
                $entry=~m/\\domain computers\s+([0-9.].*)\s+\(/;
                my $ip=$1;
 
+               # ignore devices that are listed in ignore-list
+               my $net_ip = NetAddr::IP->new($ip);
+               my $ip_within_net = 0;
+               foreach my $network (@ignored_networks) {
+                   if ($net_ip->within($network)) {
+                       $ip_within_net = 1;
+                       last;
+                   }
+               }
+               if ($ip_within_net == 1) {
+                   next;
+               }
+
                # extract ipv4 from line
                $entry=~m/ipv4:([0-9.].*)\)/;
                my $ipv4_port=$1;
                my ($ipv4,$port)=split(/:/,$ipv4_port);
+
+               # If a prefered ip is given, reconsider the current entry.
+               if (exists $smbstatus{'USER'}{$user} and !($net_ip->within($prefered_ip))) {
+                   next;
+               }
 
                # Save Data
                $smbstatus{'COMPUTER'}{$computer}{'SMBSTATUS_LINE'}=$entry;
