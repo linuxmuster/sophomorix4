@@ -1457,6 +1457,9 @@ sub _console_print_group_full {
 
         # sophomorix mail attributes
         printf "%25s: %-40s\n","mail",$ref_groups->{'GROUPS'}{$group}{'mail'};
+	foreach my $item ( @{ $ref_groups->{'GROUPS'}{$group}{'proxyAddresses'} } ){
+            printf "%25s: %-40s\n","proxyAddresses",$item;
+	}
         if ($type eq "class"){
             printf "%25s: %-40s\n","sophomorixMailQuota",$ref_groups->{'GROUPS'}{$group}{'sophomorixMailQuota'};
             printf "%25s: %-40s\n","sophomorixMailAlias",$ref_groups->{'GROUPS'}{$group}{'sophomorixMailAlias'};

@@ -6746,6 +6746,8 @@ sub AD_get_full_groupdata {
         @{ $groups{'GROUPS'}{$sam}{'sophomorixMemberGroups'} } = sort $entry->get_value('sophomorixMemberGroups');
         $groups{'GROUPS'}{$sam}{'sophomorixMemberGroups_count'} = $#{ $groups{'GROUPS'}{$sam}{'sophomorixMemberGroups'} }+1;
 
+	@{ $groups{'GROUPS'}{$sam}{'proxyAddresses'} } = sort $entry->get_value('proxyAddresses');
+
         # intrinsic
         $groups{'GROUPS'}{$sam}{'sophomorixIntrinsic1'}=$entry->get_value('sophomorixIntrinsic1');
         $groups{'GROUPS'}{$sam}{'sophomorixIntrinsic2'}=$entry->get_value('sophomorixIntrinsic2');
@@ -7963,6 +7965,12 @@ sub AD_group_update {
     my $addmailquota = $arg_ref->{addmailquota};
     my $mailalias = $arg_ref->{mailalias};
     my $maillist = $arg_ref->{maillist};
+    # change proxyAddresses (multi-value)
+    my $proxy_addresses_set = $arg_ref->{proxy_addresses_set};
+    #my $proxy_addresses_add = $arg_ref->{proxy_addresses_add};
+    #my $proxy_addresses_remove = $arg_ref->{proxy_addresses_remove};
+    #my $proxy_addresses_entry = $arg_ref->{proxy_addresses_entry};
+    #
     my $status = $arg_ref->{status};
     my $join = $arg_ref->{join};
     my $hide = $arg_ref->{hide};
@@ -8102,6 +8110,15 @@ sub AD_group_update {
         print "   * Setting sophomorixMaillist to $maillist\n";
         my $mesg = $ldap->modify($dn,replace => {sophomorixMaillist => $maillist}); 
     }
+    # proxyAddresses
+    if (defined $proxy_addresses_set){
+        my @proxy_addresses=split(/,/,$proxy_addresses_set);
+        @proxy_addresses = reverse @proxy_addresses;
+        print "   * Setting proxyAddresses to: @proxy_addresses\n";
+        my $mesg = $ldap->modify($dn,replace => {'proxyAddresses' => \@proxy_addresses }); 
+        &AD_debug_logdump($mesg,2,(caller(0))[3]);
+    }
+
     # status   
     if (defined $status){
         print "   * Setting sophomorixStatus to $status\n";

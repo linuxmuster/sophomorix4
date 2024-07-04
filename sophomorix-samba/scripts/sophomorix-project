@@ -80,6 +80,7 @@ $options{'CONFIG'}{'ACTION'}{'GROUP'}="create,".
                                       "gidnumber-migrate,".
                                       "mailalias,".
                                       "maillist,".
+                                      "set-proxy-addresses,".
                                       "join,".
                                       "hide,".
                                       "admins,".
@@ -141,6 +142,7 @@ my $testopt=GetOptions(\%options,
                        "creationdate=s",
                        "mailalias!",
                        "maillist!",
+                       "set-proxy-addresses=s",
 		       "update-maildomain",
                       );
 
@@ -231,6 +233,8 @@ Changing/creating/killing a project:
     --membergroups group1,group2,group3, ... 
     --addmembergroups group1,group2,group3, ...
     --removemembergroups group1,group2,group3, ...
+
+    --set-proxy-addresses <address1>,<address2>,...
 
 Syncing memberships of all projects (sophomorix* -> members):
   --sync-all-memberships
@@ -778,6 +782,17 @@ if (defined $options{'removeadmingroups'}){
                       type=>"project",
                       admingroups=>$admingroups,
                       sophomorix_config=>\%sophomorix_config,
+                    });
+}
+
+# --set-proxy-addresses <entry>
+if (defined $options{'set-proxy-addresses'}){
+    &AD_group_update({ldap=>$ldap,
+                     root_dse=>$root_dse,
+                     dn=>$dn_pro,
+		     school=>$school_AD,
+                     proxy_addresses_set=>$options{'set-proxy-addresses'},
+                     sophomorix_config=>\%sophomorix_config,
                     });
 }
 

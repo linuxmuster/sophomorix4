@@ -80,6 +80,7 @@ $options{'CONFIG'}{'ACTION'}{'GROUP'}="create,".
                                       "gidnumber-migrate,".
                                       "mailalias,".
                                       "maillist,".
+                                      "set-proxy-addresses,".
                                       "join,".
                                       "hide,".
                                       "admins,".
@@ -134,6 +135,7 @@ my $testopt=GetOptions(\%options,
                        "removemembers=s",
                        "delete-all-empty-classes",
                        "delete-all-teacheronly-classes",
+                       "set-proxy-addresses=s",
                        "update-maildomain",
 		       "remove-student-admins-from-class",
                       );    
@@ -213,6 +215,8 @@ Changing one/multiple admin-/extra-/teacherclass:
     --admins user1,user2,user3, ... 
     --addadmins user1,user2,user3, ...
     --removeadmins user1,user2,user3, ...
+
+    --set-proxy-addresses <address1>,<address2>,...
 
     For administrators:
     --remove-student-admins-from-class --info   (show which users are removed as admin)
@@ -958,6 +962,21 @@ if (defined $options{'kill'} and defined $options{'class'}){
                       });
     }
 }
+
+# --set-proxy-addresses <entry> --class <class1>,<class2>,...
+if (defined $options{'set-proxy-addresses'}){
+    foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
+	&AD_group_update({ldap=>$ldap,
+			  root_dse=>$root_dse,
+                          dn=>$classes{'CLASS_VALID_DATA'}{$class_valid}{'DN'},
+		          school=>$classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'},
+                          type=>$class_type,
+			  proxy_addresses_set=>$options{'set-proxy-addresses'},
+			  sophomorix_config=>\%sophomorix_config,
+			 });
+    }
+}
+
 
 
 ############################################################
