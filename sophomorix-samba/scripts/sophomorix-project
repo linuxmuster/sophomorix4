@@ -80,6 +80,7 @@ $options{'CONFIG'}{'ACTION'}{'GROUP'}="create,".
                                       "gidnumber-migrate,".
                                       "mailalias,".
                                       "maillist,".
+                                      "mail,".
                                       "join,".
                                       "hide,".
                                       "admins,".
@@ -141,6 +142,7 @@ my $testopt=GetOptions(\%options,
                        "creationdate=s",
                        "mailalias!",
                        "maillist!",
+                       "mail=s",
 		       "update-maildomain",
                       );
 
@@ -210,6 +212,7 @@ Changing/creating/killing a project:
     --addmailquota <mailquota in MiB>:<Comment>
     --mailalias, --nomailalias
     --maillist, --nomaillist 
+    --mail new_mail_address
     --status <letter>
     --join,  --nojoin
     --hide,  --nohide
@@ -532,6 +535,18 @@ if (defined $options{'maillist'}){
 		      school=>$school_AD,
                       type=>"project",
                       maillist=>$options{'maillist'},
+                      sophomorix_config=>\%sophomorix_config,
+                    });
+}
+
+# --mail
+if (defined $options{'mail'}){
+    &AD_group_update({ldap=>$ldap,
+                      root_dse=>$root_dse,
+                      dn=>$dn_pro,
+		      school=>$school_AD,
+                      type=>"project",
+                      mail=>$options{'mail'},
                       sophomorix_config=>\%sophomorix_config,
                     });
 }
