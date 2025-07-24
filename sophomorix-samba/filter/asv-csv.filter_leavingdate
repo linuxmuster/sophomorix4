@@ -1,0 +1,240 @@
+#!/usr/bin/perl -w
+# This script converts the cvs dump of ASV-BW 
+# to the students.csv format for linuxmuster.net 7
+# The filter removes students, which leavingdate ("Austritt") is earlier the the runtime date of the script
+#
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Useqq = 1;
+$Data::Dumper::Terse = 1;
+
+use Time::Local;
+
+my $source=$ARGV[0];
+my $target=$ARGV[1];
+
+my $tmp="/var/lib/sophomorix/tmp/students.csv.filter.tmp-asv-csv.filter";
+
+my %unid_store=();
+my %line_store=();
+my $linecount=0;
+my $filtercount=0;
+my $headercount=0;
+
+my %header=();
+
+my $epoch = time();
+
+############################################################
+# configuration
+############################################################
+
+# Fetch data from ASV-BW the following way:
+# as described in https://github.com/linuxmuster/sophomorix4/wiki/Export-and-Filters
+
+# call this script with /abs/path/asv-csv.filter  /source/file  /target/file
+
+# your exported files needs headers to work with this filter
+
+# Header names in the analized file
+# Edit ONLY the last, german names
+$header{'known_headers'}{'class'}="Klasse";
+$header{'known_headers'}{'sn'}="Familienname";
+$header{'known_headers'}{'givenName'}="Vornamen";
+$header{'known_headers'}{'birthday'}="Geburtsdatum";
+$header{'known_headers'}{'unid'}="Schueler-ID";
+$header{'known_headers'}{'entry'}="Eintritt";
+$header{'known_headers'}{'leaving'}="Austritt";
+
+
+# how many ; has your file?
+$max_configured_semicolons_per_line=15;
+$min_configured_semicolons_per_line=4;
+
+
+
+############################################################
+# Start the script
+############################################################
+
+foreach my $key( keys %{ $header{'known_headers'} }){
+    $header{'configured_headers'}{$header{'known_headers'}{$key}}=$key;
+}
+
+# Order of the Headers in the filtered file
+$header{'output'}{'class'}=1;
+$header{'output'}{'sn'}=2;
+$header{'output'}{'givenName'}=3;
+$header{'output'}{'birthday'}=4;
+$header{'output'}{'unid'}=5;
+
+
+open(SOURCE, "<$source") || die "Error: $! $source not found!"; 
+open(TMP, ">$tmp") || die "Error: $! $tmp not found!";
+print TMP "# created by filterscript\n";
+print TMP "# $0\n";
+print TMP "# @ARGV\n";
+
+
+
+while (<SOURCE>){
+    chomp();
+    $linecount++;
+
+    # skip empty lines    
+    if ($_ eq ""){
+        next;
+    }
+
+    # split items in line
+    my @items=split(";");
+
+    # remove quotes
+    #$class=&remove_quote($class);
+    #$surname=&remove_quote($surname);
+    #$firstname=&remove_quote($firstname);
+    #$birthday=&remove_quote($birthday);
+    #$unid=&remove_quote($unid);
+    #$schoolyear=&remove_quote($schoolyear);
+
+    # find the header
+    if (exists $header{'configured_headers'}{$items[0]} and
+	exists $header{'configured_headers'}{$items[1]} and
+	exists $header{'configured_headers'}{$items[2]}
+       ){
+	print  "This is the header in LINE $linecount: $_\n";
+        my $count=0;
+	foreach my $item (@items){
+	    $count++;
+            #my $field="Feld".$count;
+	    $header{'fields_in_input_file'}{$item}=$count;
+	}
+	print Dumper(%header);
+	$headercount++;
+	print TMP "# ".$_."\n";
+	next;
+    }
+
+    if ($headercount==1){
+        # 
+    } else {
+        print "\n# $headercount header found at the beginning of the file $headercount #\n\n";
+        exit;
+}
+    
+    # display LINE
+    my $class=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'class'}}-1];
+    my $sn=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'sn'}}-1];
+    my $given_name=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'givenName'}}-1];
+    my $birthday=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'birthday'}}-1];
+    my $unid=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'unid'}}-1];
+    my $entry=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'entry'}}-1];
+    my $leaving=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'leaving'}}-1];
+
+    # skip classes beginning with _
+    if ($class=~m/^_/){
+        next;
+    }
+
+    # skip classes beginning with "Abgang "
+    if ($class=~m/^Abgang /){
+        next;
+    }
+
+    print "LINE $linecount:\n";
+    print "   $header{'known_headers'}{'class'}: >$class<\n";
+    print "   $header{'known_headers'}{'sn'}: >$sn<\n";
+    print "   $header{'known_headers'}{'givenName'}: >$given_name<\n";
+    print "   $header{'known_headers'}{'birthday'}: >$birthday<\n";
+    print "   $header{'known_headers'}{'unid'}: >$unid<\n";
+
+    # exit if line seems suspicious
+    my $semicolons_per_line=tr/;//;
+    if ($semicolons_per_line<$min_configured_semicolons_per_line or
+	$semicolons_per_line>$max_configured_semicolons_per_line ){
+        print "\nSemicolons in line $linecount is not correct: $semicolons_per_line\n";
+        print "    Allowed: $min_configured_semicolons_per_line to $max_configured_semicolons_per_line\n\n";
+        exit;
+    }
+
+    # ignore if line is double
+    if (exists $line_store{$_}){
+        print "\n# WARNING: line $_ is double (Line $line_store{$_} and $linecount)#\n\n";
+        next;
+    } else {
+        $line_store{$_}=$linecount;
+    }
+
+    # exit if ID is double
+    if (exists $unid_store{$unid}){
+	print "$_";
+        print "\n# ERROR: unid $unid is double (Line $unid_store{$unid} and $linecount)#\n\n";
+        exit;
+    } else {
+        $unid_store{$unid}=$linecount;
+    }
+
+    # skip user if leaving-date is exceeded
+    if (not defined $leaving){
+        $leaving="";
+	# user has NO leaving date: keep it in the file
+    } else {
+	# user has a non-empty leaving date
+        # check the leaving date
+	my ($day,$month,$year)=split(/\./,$leaving);
+	my $epoch_user=timelocal(0,0,0, $day , ($month-1), $year);
+	if ($epoch>$epoch_user){
+	    # current time has passed leaving date
+            # remove user
+            print "   $given_name $sn HAS LEFT >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
+	    next; # skip generation of line
+	} else {
+            # ALL other cases (syntax error in leaving_date, ....)
+	    # keep user                                                                                                   print "   $given_name $sn WILL BE LEAVING >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
+
+	}
+    }
+
+    
+    # create line
+    $filtercount++;
+    my $filtered_line=$class.";".
+	              $sn.";".
+	              $given_name.";".
+	              $birthday.";".
+	              $unid.";";
+    print "  -> Filtered to $filtercount: $filtered_line\n";
+    print TMP $filtered_line."\n";
+}
+
+
+close(SOURCE);
+close(TMP);
+
+
+# if all worked well: copy file to final location
+if ($headercount==1){
+    print "# 1 Header found. Looks good! #\n";
+} else {
+        print "\n# $headercount header found. Cannot continue without header or more than one header#\n\n";
+        exit;
+}
+
+system("cp $tmp $target");
+system("rm $tmp");
+
+
+############################################################
+# subs
+############################################################
+
+sub remove_quote {
+    my ($string)=@_;
+    $string=~s/^"//g;
+    $string=~s/"$//g;
+    $string=~s/^ //g;
+    $string=~s/ $//g;
+    return $string;
+}
