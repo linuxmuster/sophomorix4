@@ -1557,6 +1557,7 @@ sub AD_group_kill {
 
                 my $smb = new Filesys::SmbClient(username  => $DevelConf::sophomorix_file_admin,
                                                  password  => $smb_admin_pass,
+												 workgroup => $ref_sophomorix_config->{'samba'}{'smb.conf'}{'global'}{'workgroup'},
                                                  debug     => 0);
 
                 my $return1=$smb->rmdir_recurse($smb_share);
