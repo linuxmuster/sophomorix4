@@ -151,7 +151,8 @@ Options:
   -i  / --info
   -i -m <groupname> / --info --managementgroup <groupname>
 
-Examples 
+Examples: 
+Add/Remove users from a managementgroup:
   sophomorix-managementgroup  --internet  <user1,user2,...>   --nointernet  <user1,user2,...>
                               --wifi      <user1,user2,...>   --nowifi  <user1,user2,...>
                               --intranet  <user1,user2,...>   --nointranet  <user1,user2,...> 
@@ -159,7 +160,7 @@ Examples
                               --printing  <user1,user2,...>   --noprinting  <user1,user2,...>
                               --admins    <user1,user2,...>   --noadmins <user1,user2,...>
 
-Set specific managementgroup memberships from a file
+Set specific managementgroup memberships from a file:
   sophomorix-managementgroup --set-internet <name> --school <school>
   sophomorix-managementgroup --set-wifi <name> --school <school>
   sophomorix-managementgroup --set-intranet <name> --school <school>
