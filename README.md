@@ -9,11 +9,11 @@ https://github.com/linuxmuster/sophomorix4/wiki
 
 ## Maintainance Details
     
-Linuxmuster.net official | ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+)  YES
+Linuxmuster.net official | ✅  YES
 :---: | :---: 
-[Community support](https://ask.linuxmuster.net) | ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+)  YES**
-Actively developed | ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+)  YES
+[Community support](https://ask.linuxmuster.net) | ✅  YES*
+Actively developed | ✅  YES
 Maintainer organisation |  Linuxmuster.net e.V.  
-Primary maintainer | Rüdiger Beck \<jeffbeck@web.de\>
+Primary maintainer | Rüdiger Beck \<jeffbeck@web.de\> and [@kiarn](https://github.com/kiarn)
   
-** The linuxmuster community consits of people who are nice and happy to help. They are not directly involved in the development though, and might not be able to help in any case.
+* The linuxmuster community consits of people who are nice and happy to help. They are not directly involved in the development though, and might not be able to help in any case.

@@ -190,7 +190,7 @@ my $max_user_count=0;
 my $user_count=0;
 my $user_count_total=0;
 
-my @rolelist=("globaladministrator","schooladministrator","teacher","student");
+my @rolelist=("globaladministrator","schooladministrator","teacher","student","parent","staff");
 
 
 if ($school eq ""){

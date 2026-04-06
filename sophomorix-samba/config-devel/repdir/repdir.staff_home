@@ -1,0 +1,8 @@
+# This list is read by sophomorix-repair
+
+# The home of a staff member
+SMB::@@SCHOOL@@/$directory_staff/@@STAFFCLASS@@/@@USER@@/::root::root::0755::staff.home.ntacl::
+
+
+
+

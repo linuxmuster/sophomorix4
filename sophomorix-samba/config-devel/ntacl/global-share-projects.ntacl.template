@@ -5,4 +5,6 @@ GROUP:@@WORKGROUP@@\Domain Users
 ACL:@@WORKGROUP@@\global-admins:ALLOWED/OI|CI/FULL
 ACL:@@WORKGROUP@@\global-students:ALLOWED/0x0/READ
 ACL:@@WORKGROUP@@\global-teachers:ALLOWED/0x0/READ
+ACL:@@WORKGROUP@@\global-staff:ALLOWED/0x0/READ
+ACL:@@WORKGROUP@@\global-parents:ALLOWED/0x0/READ
 ACL:@@WORKGROUP@@\Domain Admins:ALLOWED/OI|CI|I/FULL

@@ -1,0 +1,7 @@
+# This list is read by sophomorix-repair
+
+############################################################
+# staff adminclasses
+############################################################
+# For the homes
+SMB::@@SCHOOL@@/$directory_staff/@@STAFFCLASS@@/::root::root::0755::staffclass.homes.ntacl::

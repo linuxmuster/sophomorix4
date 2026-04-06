@@ -176,4 +176,16 @@ print "* Updating rolegroups ... done!\n";
 &AD_sophomorix_schema_update($smb_conf{'samba'}{'from_smb.conf'}{'DomainDNS'});
 
 print "\n";
+
+
+######################################################################
+# install python dependencies
+######################################################################
+
+# Actually only install diceware, would be better to handle this
+# with requirements.txt
+
+system('export PIP_BREAK_SYSTEM_PACKAGES=1; export PIP_ROOT_USER_ACTION=ignore; python3 -m pip install diceware');
+
+print "\n";
 print "##### sophomorix-postinst end #####\n";

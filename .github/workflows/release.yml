@@ -11,10 +11,10 @@ name: Build Release
 jobs:
   deb-package:
     name: build DEB-Package
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: sudo apt update && sudo apt install debhelper build-essential devscripts -y
@@ -26,7 +26,7 @@ jobs:
         run: mkdir package && cp ../sophomorix-* ./package && cp ../sophomorix4_* ./package
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: deb-package
           path: package/*
@@ -35,10 +35,10 @@ jobs:
     needs: deb-package
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     name: GitHub Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: deb-package
 
@@ -88,7 +88,7 @@ jobs:
   publish:
     needs: deb-package
     name: Push latest release to archive repo
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/') && github.repository == 'linuxmuster/sophomorix4'
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/') && github.repository == 'linuxmuster/sophomorix'
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH Key
@@ -99,7 +99,7 @@ jobs:
           ssh-add - <<< "${{ secrets.REPO_SSH_KEY }}"
           
       - name: Clone archive repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with: 
           repository: "linuxmuster/deb"
           ssh-key: ${{ secrets.REPO_SSH_KEY }}
@@ -109,7 +109,7 @@ jobs:
         run: mkdir "package"
           
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: deb-package
           path: "./package"

@@ -40,6 +40,8 @@ my $testopt=GetOptions(\%options,
                         "anyname=s",
                         "custom=s",
                         "student",
+                        "parent",
+                        "staff",
                         "teacher",
                         "examuser",
                         "globaladministrator",
@@ -148,6 +150,8 @@ OR
 Limit the query for sophomorix users to a certain sophomorixRole:
 (multiple options are connected with | to accumulate the results)
 --student                       (sophomorixRole=student)
+--parent                        (sophomorixRole=parent)
+--staff                         (sophomorixRole=staff)
 --teacher                       (sophomorixRole=teacher)
 --examuser                      (sophomorixRole=examuser)
 --globaladministrator           (sophomorixRole=globaladministrator)
@@ -584,7 +588,9 @@ if (defined $options{'custom'}){
 ########################################
 if (defined $options{'student'} or 
     defined $options{'teacher'} or 
-    defined $options{'examuser'} or 
+    defined $options{'parent'} or
+    defined $options{'staff'} or
+    defined $options{'examuser'} or
     defined $options{'globaladministrator'} or 
     defined $options{'schooladministrator'} or 
     defined $options{'globalbinduser'} or 
@@ -602,6 +608,14 @@ if (defined $options{'student'} or
     $role_filter=$role_filter."(| ";
     if (defined $options{'student'}){
         $role_filter=$role_filter."(sophomorixRole=student)";
+        $search_object="user";
+    }
+    if (defined $options{'parent'}){
+        $role_filter=$role_filter."(sophomorixRole=parent)";
+        $search_object="user";
+    }
+    if (defined $options{'staff'}){
+        $role_filter=$role_filter."(sophomorixRole=staff)";
         $search_object="user";
     }
     if (defined $options{'teacher'}){

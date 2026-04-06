@@ -714,7 +714,7 @@ if ($userlist_count>0 and ($password ne "" or
                     $password=&get_plain_password(
                         $role_AD,
                         $file_AD,
-                        $sophomorix_config{'FILES'}{'USER_FILE'}{$file_AD}{'RANDOM_PWD'}, # yes|no
+                        $sophomorix_config{'FILES'}{'USER_FILE'}{$file_AD}{'RANDOM_PWD'}, # yes|no|birthdate|dice
                         $sophomorix_config{'FILES'}{'USER_FILE'}{$file_AD}{'PWD_LENGTH'}, # length of random pwd
                         $birthdate_AD,
                         \%sophomorix_config,

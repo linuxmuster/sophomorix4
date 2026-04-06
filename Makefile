@@ -201,8 +201,11 @@ install-sophomorix-samba:
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.schooladministrator_home $(DEVELCONF)/devel/repdir
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.teacher_home $(DEVELCONF)/devel/repdir
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.adminclass $(DEVELCONF)/devel/repdir
+	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.staffclass $(DEVELCONF)/devel/repdir
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.extraclass $(DEVELCONF)/devel/repdir
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.student_home $(DEVELCONF)/devel/repdir
+	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.parent_home $(DEVELCONF)/devel/repdir
+	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.staff_home $(DEVELCONF)/devel/repdir
 	@install -oroot -groot --mode=0644 sophomorix-samba/config-devel/repdir/repdir.examuser_home $(DEVELCONF)/devel/repdir
 # ntacls
 	@install -d -m755 -oroot -groot $(DEVELCONF)/devel/ntacl

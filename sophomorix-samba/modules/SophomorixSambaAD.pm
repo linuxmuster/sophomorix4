@@ -914,6 +914,8 @@ sub AD_repdir_using_file {
     my $teacherclass = $arg_ref->{teacherclass};
     my $teacher_home = $arg_ref->{teacher_home};
     my $adminclass = $arg_ref->{adminclass};
+    my $staffclass = $arg_ref->{staffclass};
+    my $parentclass = $arg_ref->{parentclass};
     my $extraclass = $arg_ref->{extraclass};
     my $subdir = $arg_ref->{subdir};
     my $student_home = $arg_ref->{student_home};
@@ -963,6 +965,14 @@ sub AD_repdir_using_file {
         }
         if (/\@\@TEACHERCLASS\@\@/) {
             $group_type="teacherclass";
+            $groupvar_seen++;
+        }
+        if (/\@\@PARENTCLASS\@\@/) {
+            $group_type="parentclass";
+            $groupvar_seen++;
+        }
+        if (/\@\@STAFFCLASS\@\@/) {
+            $group_type="staffclass";
             $groupvar_seen++;
         }
         if (/\@\@PROJECT\@\@/) {
@@ -1021,6 +1031,8 @@ sub AD_repdir_using_file {
             $dir=~s/>\$homedir_global</${DevelConf::homedir_global}/;
             # other
             $dir=~s/>\$directory_students</${DevelConf::directory_students}/;
+            $dir=~s/>\$directory_parents</${DevelConf::directory_parents}/;
+            $dir=~s/>\$directory_staff</${DevelConf::directory_staff}/;
             $dir=~s/>\$directory_teachers</${DevelConf::directory_teachers}/;
             $dir=~s/>\$directory_projects</${DevelConf::directory_projects}/;
             $dir=~s/>\$directory_management</${DevelConf::directory_management}/;
@@ -1078,6 +1090,10 @@ sub AD_repdir_using_file {
                 @groups=($project);
             } elsif (defined $teacherclass){
                 @groups=($teacherclass);
+            } elsif (defined $parentclass){
+                @groups=($parentclass);
+            } elsif (defined $staffclass){
+                @groups=($staffclass);
             } elsif (defined $adminclass){
                 @groups=($adminclass);
             } elsif (defined $extraclass){
@@ -1106,11 +1122,15 @@ sub AD_repdir_using_file {
                 $path_after_group=~s/\@\@ADMINCLASS\@\@/$group_basename/;
                 $path_after_group=~s/\@\@EXTRACLASS\@\@/$group_basename/;
                 $path_after_group=~s/\@\@TEACHERCLASS\@\@/$group_basename/;
+                $path_after_group=~s/\@\@PARENTCLASS\@\@/$group_basename/;
+                $path_after_group=~s/\@\@STAFFCLASS\@\@/$group_basename/;
                 $path_after_group=~s/\@\@PROJECT\@\@/$group_basename/;
                 my $path_after_group_smb=$path_smb;
                 $path_after_group_smb=~s/\@\@ADMINCLASS\@\@/$group_basename/;
                 $path_after_group_smb=~s/\@\@EXTRACLASS\@\@/$group_basename/;
                 $path_after_group_smb=~s/\@\@TEACHERCLASS\@\@/$group_basename/;
+                $path_after_group_smb=~s/\@\@PARENTCLASS\@\@/$group_basename/;
+                $path_after_group_smb=~s/\@\@STAFFCLASS\@\@/$group_basename/;
                 $path_after_group_smb=~s/\@\@PROJECT\@\@/$group_basename/;
                 if($Conf::log_level>=3){      
                     print "      * Path after group:  $path_after_group (smb: $path_after_group_smb)\n";
@@ -1195,7 +1215,7 @@ sub AD_repdir_using_file {
                                                                    });
                    } elsif ($entry_type eq "LINUX"){
                         mkdir $path_after_user;
-                        my $chown_command="chown ".$owner.".".$groupowner." ".$path_after_user;
+                        my $chown_command="chown ".$owner.":".$groupowner." ".$path_after_user;
                         print "          $chown_command\n";
                         system($chown_command);
                         chmod oct($permission), $path_after_user;
@@ -1421,6 +1441,10 @@ sub AD_computer_update {
     my ($arg_ref) = @_;
     my $ldap = $arg_ref->{ldap};
     my $root_dse = $arg_ref->{root_dse};
+    my $school = $arg_ref->{school};
+    my $room_basename = $arg_ref->{room_basename};
+    my $filename = $arg_ref->{filename};
+    my $name = $arg_ref->{name};
     my $computer = $arg_ref->{computer};
     my $computer_count = $arg_ref->{computer_count};
     my $attrs_count = $arg_ref->{attrs_count};
@@ -1467,6 +1491,24 @@ sub AD_computer_update {
         my $mesg = $ldap->modify( $dn,
                           replace => { %{ $ref_replace->{$computer}{'REPLACE'} } } 
                          );
+
+        # Check if must be moved to new DN
+        if (defined $room_basename) {
+            my $room_ou=$ref_sophomorix_config->{'FILES'}{'DEVICE_FILE'}{$filename}{'GROUP_OU'};
+            $room_ou=~s/\@\@FIELD_1\@\@/$room_basename/g;
+            my $dn_room = $room_ou.",OU=".$school.",".$DevelConf::AD_schools_ou.",".$root_dse;
+            my $new_dn="CN=".$name.",".$dn_room;
+            my $rdn="CN=".$name;
+
+            if (not $new_dn eq $dn) {
+                &AD_object_move({ldap=>$ldap,
+                         dn=>$dn,
+                         rdn=>$rdn,
+                         target_branch=>$dn_room,
+                        });
+            }
+        }
+
         &AD_debug_logdump($mesg,2,(caller(0))[3]);
     } else {
         print "\nNot updating, $max results found for computer $computer\n\n";
@@ -1551,17 +1593,14 @@ sub AD_group_kill {
 	} elsif ($type eq "project"){
             # delete the share, when succesful the group
             if ($smb_share ne  "unknown"){
+                my $smbclient_command_rmdir = $ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SMBCLIENT'}.
+                    " --debuglevel=0 -U ".$DevelConf::sophomorix_file_admin."%'******' ".
+                    $unc." -c 'deltree \"$smb_rel_path_share\";'";
 
-                # rewrite smb_dir with msdfs root
-                $smb_share=&Sophomorix::SophomorixBase::rewrite_smb_path($smb_share,$ref_sophomorix_config);
+                my $return1=&Sophomorix::SophomorixBase::smb_command($smbclient_command_rmdir,$smb_admin_pass);
 
-                my $smb = new Filesys::SmbClient(username  => $DevelConf::sophomorix_file_admin,
-                                                 password  => $smb_admin_pass,
-                                                 debug     => 0);
-
-                my $return1=$smb->rmdir_recurse($smb_share);
-                if($return1==1){
-                    print "OK: Deleted with succes $smb_share\n"; # smb://linuxmuster.local/<school>/subdir1/subdir2
+                if($return1==0){
+                    print "OK: Deleted with success $smb_share\n"; # smb://linuxmuster.local/<school>/subdir1/subdir2
                     # deleting the AD account
                     my $command=$ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SAMBA_TOOL'}.
                         " group delete ". $group;
@@ -2486,7 +2525,51 @@ sub AD_user_create {
                                    sophomorix_result=>$ref_sophomorix_result,
                                  });
         }
-    }  
+    } elsif ($role eq "parent"){
+        if ($school eq $ref_sophomorix_config->{'INI'}{'GLOBAL'}{'SCHOOLNAME'}){
+            &AD_repdir_using_file({root_dns=>$root_dns,
+                                   repdir_file=>"repdir.parent_home",
+                                   school=>$ref_sophomorix_config->{'INI'}{'VARS'}{'GLOBALSHARENAME'},
+                                   adminclass=>$group,
+                                   student_home=>$login,
+                                   smb_admin_pass=>$smb_admin_pass,
+                                   sophomorix_config=>$ref_sophomorix_config,
+                                   sophomorix_result=>$ref_sophomorix_result,
+                                 });
+        } else {
+            &AD_repdir_using_file({root_dns=>$root_dns,
+                                   repdir_file=>"repdir.parent_home",
+                                   school=>$school,
+                                   adminclass=>$group,
+                                   student_home=>$login,
+                                   smb_admin_pass=>$smb_admin_pass,
+                                   sophomorix_config=>$ref_sophomorix_config,
+                                   sophomorix_result=>$ref_sophomorix_result,
+                                 });
+        }
+    } elsif ($role eq "staff"){
+        if ($school eq $ref_sophomorix_config->{'INI'}{'GLOBAL'}{'SCHOOLNAME'}){
+            &AD_repdir_using_file({root_dns=>$root_dns,
+                                   repdir_file=>"repdir.staff_home",
+                                   school=>$ref_sophomorix_config->{'INI'}{'VARS'}{'GLOBALSHARENAME'},
+                                   adminclass=>$group,
+                                   student_home=>$login,
+                                   smb_admin_pass=>$smb_admin_pass,
+                                   sophomorix_config=>$ref_sophomorix_config,
+                                   sophomorix_result=>$ref_sophomorix_result,
+                                 });
+        } else {
+            &AD_repdir_using_file({root_dns=>$root_dns,
+                                   repdir_file=>"repdir.staff_home",
+                                   school=>$school,
+                                   adminclass=>$group,
+                                   student_home=>$login,
+                                   smb_admin_pass=>$smb_admin_pass,
+                                   sophomorix_config=>$ref_sophomorix_config,
+                                   sophomorix_result=>$ref_sophomorix_result,
+                                 });
+        }
+    }
 
     &Sophomorix::SophomorixBase::print_title("Creating user $user_count: $login (end)");
     print "\n";
@@ -3667,7 +3750,10 @@ sub AD_user_move {
     my $group_type_new;
     if (defined $ref_sophomorix_config->{'SCHOOLS'}{$school_new}{'GROUP_TYPE'}{$group_new}){
         $group_type_new=$ref_sophomorix_config->{'SCHOOLS'}{$school_new}{'GROUP_TYPE'}{$group_new};
-    } else{
+    } elsif ($role_new eq "staff") {
+        # Special case for staff in order to create a category in the staff directory
+        $group_type_new = "staffclass";
+    } else {
         $group_type_new="adminclass";
     }
 
@@ -3693,6 +3779,10 @@ sub AD_user_move {
     } elsif ($role_new eq "teacher"){
 #         $target_branch="OU=".$group_new_basename.",OU=Teachers,OU=".$school_new.",".$DevelConf::AD_schools_ou.",".$root_dse;
          $target_branch="OU=Teachers,OU=".$school_new.",".$DevelConf::AD_schools_ou.",".$root_dse;
+    } elsif ($role_new eq "staff"){
+         $target_branch="OU=".$group_new_basename.",OU=Staff,OU=".$school_new.",".$DevelConf::AD_schools_ou.",".$root_dse;
+    } elsif ($role_new eq "parent"){
+         $target_branch="OU=Parents,OU=".$school_new.",".$DevelConf::AD_schools_ou.",".$root_dse;
     }
 
     my ($homedirectory_old,$unix_home_old,$unc_old,$smb_rel_path_old)=
@@ -3726,7 +3816,7 @@ sub AD_user_move {
     if($Conf::log_level>=1){
         print "\n";
         &Sophomorix::SophomorixBase::print_title("Moving user $user ($user_count),(start):");
-        print "   DN:             $dn\n";
+        print "   DN:                $dn\n";
         print "   Target DN:         $target_branch\n";
         print "   Group (Old):       $group_old ($group_old_basename)\n";
         print "   Group (New):       $group_new ($group_new_basename)\n";
@@ -3836,7 +3926,7 @@ sub AD_user_move {
 
     # change management groups if school changes
     if ($school_old ne $school_new){
-        &Sophomorix::SophomorixBase::print_title("School $school_old --> $school_new, managment groups change (start)");
+        &Sophomorix::SophomorixBase::print_title("School $school_old --> $school_new, management groups change (start)");
         my @grouplist=("wifi","internet","webfilter","intranet","printing");
         # removing
         foreach my $group (@grouplist){
@@ -3857,7 +3947,7 @@ sub AD_user_move {
                                             addmember => $user,
                                            }); 
         }
-        &Sophomorix::SophomorixBase::print_title("School $school_old --> $school_new, managment groups change (start)");
+        &Sophomorix::SophomorixBase::print_title("School $school_old --> $school_new, management groups change (start)");
     }
 
 
@@ -4728,6 +4818,8 @@ sub AD_get_AD_for_repair {
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'EXTRACLASS'}.")".
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'ADMINCLASS'}.")".
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'TEACHERCLASS'}.")".
+           "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'PARENTCLASS'}.")".
+           "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'STAFFCLASS'}.")".
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'ADMINS'}.")".
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'ALLADMINS'}.")".
            "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'POWERGROUP'}.")".
@@ -4765,6 +4857,8 @@ sub AD_get_AD_for_repair {
         my $filter="(&(objectClass=user)(|(sophomorixRole=".
            $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STUDENT'}.")(sophomorixRole=".
            $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'TEACHER'}.")(sophomorixRole=".
+           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'PARENT'}.")(sophomorixRole=".
+           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STAFF'}.")(sophomorixRole=".
            $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'GLOBALADMINISTRATOR'}.")(sophomorixRole=".
            $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'SCHOOLADMINISTRATOR'}.")))";
         $mesg = $ldap->search( # perform a search
@@ -5068,7 +5162,7 @@ sub AD_get_AD_for_check {
                                 'givenName',
                                 'displayName',
                                 'mail',
-				'homeDirectory',
+				                'homeDirectory',
                                 'sophomorixSurnameInitial',
                                 'sophomorixFirstnameInitial',
                                 'sophomorixFirstPassword',
@@ -5103,7 +5197,9 @@ sub AD_get_AD_for_check {
            $forbidden_warn="$sam forbidden, $sam exists already as a sophomorix user";
            if ($role eq $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STUDENT'} or
                $role eq $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'TEACHER'} or
-               $role eq "schooladministrator" or 
+               $role eq $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'PARENT'} or
+               $role eq $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STAFF'} or
+               $role eq "schooladministrator" or
                $role eq "globaladministrator"
               ){
                if ($admins eq "FALSE" and ($role eq "schooladministrator" or $role eq "globaladministrator") ){
@@ -5135,6 +5231,7 @@ sub AD_get_AD_for_check {
                    $AD{'sAMAccountName'}{$sam}{'sophomorixTolerationDate'}=$entry->get_value('sophomorixTolerationDate');
                    $AD{'sAMAccountName'}{$sam}{'sophomorixDeactivationDate'}=$entry->get_value('sophomorixDeactivationDate');
 
+                   if (not defined($entry->get_value('sophomorixBirthdate'))) {print $dn;}
                    my $identifier_ascii=
                        $entry->get_value('sophomorixSurnameASCII').
                        ";".
@@ -5917,7 +6014,7 @@ sub AD_get_quota {
     }
 
     # USER quota (sophomorix user)
-    my $filter2="(&(objectClass=user) (| (sophomorixRole=student) (sophomorixRole=teacher) ) )";
+    my $filter2="(&(objectClass=user) (| (sophomorixRole=student) (sophomorixRole=teacher) (sophomorixRole=parent) (sophomorixRole=staff) ) )";
     $mesg = $ldap->search( # perform a search
                    base   => $root_dse,
                    scope => 'sub',
@@ -6047,6 +6144,8 @@ sub AD_get_quota {
 	       "(| ".
                " (sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'ADMINCLASS'}.")".
                " (sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'TEACHERCLASS'}.")".
+               " (sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'PARENTCLASS'}.")".
+               " (sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'STAFFCLASS'}.")".
                "))";
     $mesg = $ldap->search( # perform a search
                    base   => $root_dse,
@@ -7361,7 +7460,7 @@ sub AD_get_groups_v {
             $groups{'COUNTER'}{$schoolname}{'status_by_type'}{$type}{$status}++;
             $groups{'COUNTER'}{$schoolname}{'by_type'}{$type}++;
             push @{ $groups{'LISTS'}{'GROUP_by_sophomorixSchoolname'}{$schoolname}{$type} },$sam;
-            if ($type eq "adminclass" or $type eq "teacherclass" or $type eq "extraclass"){
+            if ($type eq "adminclass" or $type eq "teacherclass" or $type eq "extraclass" or $type eq "parentclass" or $type eq "staffclass"){
                 $groups{'COUNTER'}{$schoolname}{'by_type'}{'class'}++;
                 push @{ $groups{'LISTS'}{'GROUP_by_sophomorixSchoolname'}{$schoolname}{'class'} },$sam;
             }
@@ -7817,6 +7916,8 @@ sub AD_class_fetch {
        "(| ".
        "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'ADMINCLASS'}.")".
        "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'TEACHERCLASS'}.")".
+       "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'PARENTCLASS'}.")".
+       "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'STAFFCLASS'}.")".
        "(sophomorixType=".$ref_sophomorix_config->{'INI'}{'TYPE'}{'EXTRACLASS'}.")".
        " ) )";
     my $mesg = $ldap->search( # perform a search
@@ -8542,7 +8643,7 @@ sub AD_group_create {
             # do it
             $result = $ldap->add( $dn, attr => [@{ $add_array }]);
             &AD_debug_logdump($result,2,(caller(0))[3]);
-	} elsif ($type eq "adminclass" or $type eq "teacherclass" or $type eq "extraclass"){
+	} elsif ($type eq "adminclass" or $type eq "teacherclass" or $type eq "extraclass" or $type eq "parentclass" or $type eq "staffclass"){
             my $add_array = [
                 objectClass => ['top','group'],
                 cn   => $cn,
@@ -8746,6 +8847,34 @@ sub AD_group_create {
                                    sophomorix_result=>$ref_sophomorix_result,
                                  });
         }
+    } elsif ($type eq "staffclass"){
+        my $token_staff=&AD_get_name_tokened($DevelConf::staff,$school,"staffclass");
+
+        if ($token_staff ne $group){ # do not add group to itself
+            # add the group to <token>-staff
+            &AD_group_addmember({ldap => $ldap,
+                                 root_dse => $root_dse,
+                                 group => $token_staff,
+                                 addgroup => $group,
+                               });
+        }
+
+        # add <token>-staff to all-staff
+        &AD_group_addmember({ldap => $ldap,
+                             root_dse => $root_dse,
+                             group => $ref_sophomorix_config->{'INI'}{'VARS'}{'HIERARCHY_PREFIX'}."-".$DevelConf::staff,
+                             addgroup => $group,
+                           });
+        &AD_repdir_using_file({root_dns=>$root_dns,
+                                   repdir_file=>"repdir.staffclass",
+                                   school=>$school,
+                                   staffclass=>$group,
+                                   smb_admin_pass=>$smb_admin_pass,
+                                   sophomorix_config=>$ref_sophomorix_config,
+                                   sophomorix_result=>$ref_sophomorix_result,
+                                 });
+
+
     } elsif ($type eq "teacherclass"){
         # add <token>-teachers to all-teachers
         &AD_group_addmember({ldap => $ldap,
@@ -8762,6 +8891,13 @@ sub AD_group_create {
         #                       sophomorix_config=>$ref_sophomorix_config,
         #                       sophomorix_result=>$ref_sophomorix_result,
         #                     });
+    } elsif ($type eq "parentclass"){
+        # add <token>-parents to all-parents
+        &AD_group_addmember({ldap => $ldap,
+                             root_dse => $root_dse,
+                             group => $ref_sophomorix_config->{'INI'}{'VARS'}{'HIERARCHY_PREFIX'}."-".$DevelConf::parent,
+                             addgroup => $group,
+                           });
     } elsif ($type eq "room"){
         #my $token_examaccounts=&AD_get_name_tokened($DevelConf::examaccount,$school,"examaccount");
         ## add the room to <token>-examaccounts

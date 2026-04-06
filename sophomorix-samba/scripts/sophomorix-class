@@ -64,6 +64,9 @@ my @arguments = @ARGV;
 # classtype
 my $class_type="adminclass"; # default is adminclass
 
+# update teachers groups in classes
+my $update_teachers_groups = 0;
+
 ############################################################
 # Option handling
 ############################################################
@@ -886,6 +889,7 @@ if (defined $options{'removemembers'}){
 # admins
 # --admins <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'admins'}){
+    $update_teachers_groups = 1;
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         &AD_group_update({ldap=>$ldap,
                           root_dse=>$root_dse,
@@ -902,6 +906,7 @@ if (defined $options{'admins'}){
 
 # --addadmins <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'addadmins'}){
+    $update_teachers_groups = 1;
     my @addadmins=split(/,/,$options{'addadmins'});
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         my @old_admins = &AD_dn_fetch_multivalue($ldap,
@@ -925,6 +930,7 @@ if (defined $options{'addadmins'}){
 
 # --removeadmins <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'removeadmins'}){
+    $update_teachers_groups = 1;
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         my @old_admins = &AD_dn_fetch_multivalue($ldap,
                                                  $root_dse,
@@ -943,7 +949,12 @@ if (defined $options{'removeadmins'}){
     }
 }
 
-
+# Update teachers groups like 8a-teachers if adminlists has changed (--removeadmins, --addadmins, --admins)
+if ($update_teachers_groups == 1){
+    foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }) {
+        system("/usr/sbin/lmncli -c $class_valid --sync-teachers -s $classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'}");
+    }
+}
 
 # --kill --class <class1>,<class2>,...
 if (defined $options{'kill'} and defined $options{'class'}){

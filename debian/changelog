@@ -1,3 +1,91 @@
+sophomorix4 (7.3.13) lmn73; urgency=medium
+
+  * Add kill log when users are in status R. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Fri, 02 Jan 2026 11:57:45 +0100
+
+sophomorix4 (7.3.12) lmn73; urgency=medium
+
+  * Fix target branch in AD_user_move for new roles.
+  * Fix creation of subdirectories in staff tree. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Mon, 27 Oct 2025 23:54:28 +0100
+
+sophomorix4 (7.3.11) lmn73; urgency=medium
+
+  * [device] Fix new room name for devices
+  * [device] Ensure room group exists and membership before adding device
+  * [print] Add option to not split firstname and lastname
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 12 Oct 2025 21:18:23 +0200
+
+sophomorix4 (7.3.10) lmn73; urgency=medium
+
+  * Use lmncli instead of lmntools. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Mon, 14 Jul 2025 21:07:12 +0200
+
+sophomorix4 (7.3.9) lmn73; urgency=medium
+
+  * Update teachers groups of schoolclasses if membership changes 
+  * Extend sophomorix-query to parent and staff
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Mon, 30 Jun 2025 21:10:42 +0200
+
+sophomorix4 (7.3.8) lmn73; urgency=medium
+
+  * Update hook scripts for students groups. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Fri, 06 Jun 2025 09:16:23 +0200
+
+sophomorix4 (7.3.7) lmn73; urgency=medium
+
+  * Webui permissions for parents and staff. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 25 May 2025 12:10:32 +0200
+
+sophomorix4 (7.3.6) lmn73; urgency=medium
+
+  * Fix chown command
+  * Fix quota for parents
+  * Add complete support for staff members
+  * Fix install of repdir for parents
+  * Update quotas for new users after add
+  * Fix delete of projects on file server (thanks @hermanntoast)  
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Thu, 15 May 2025 21:12:26 +0200
+
+sophomorix4 (7.3.5) lmn73; urgency=medium
+
+  * Fix AD group parents. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 16 Mar 2025 15:37:47 +0100
+
+sophomorix4 (7.3.4) lmn73; urgency=medium
+
+  * Handle parents accounts
+  * Generate passwords with diceware (thanks @raphael247) 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Tue, 11 Mar 2025 13:33:15 +0100
+
+sophomorix4 (7.3.3) lmn73; urgency=medium
+
+  * Update workflow with right repo name. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 02 Feb 2025 15:59:57 +0100
+
+sophomorix4 (7.3.2) lmn73; urgency=medium
+
+  * Add ssh host key. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 02 Feb 2025 15:46:02 +0100
+
+sophomorix4 (7.3.1) lmn73; urgency=medium
+
+  * New package for lmn7.3
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 02 Feb 2025 15:17:28 +0100
+
 sophomorix4 (3.92.1-3) lmn72; urgency=medium
 
   * package ONLY for jammy samba, (stat -> allinfo, -mNT1 deprecated)

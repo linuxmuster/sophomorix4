@@ -77,6 +77,8 @@ my $teacher_home=0;
 my $adminclass=0;
 my $extraclass=0;
 my $student_home=0;
+my $parent_home=0;
+my $staff_home=0;
 my $all=0;
 
 # fs snapshot stuff
@@ -108,6 +110,8 @@ my $testopt=GetOptions(
            "adminclass" => \$adminclass,
            "extraclass" => \$extraclass,
            "student-home" => \$student_home,
+           "parent-home" => \$parent_home,
+           "staff-home" => \$staff_home,
            "all" => \$all,
            "acl-snapshot=s" => \$acl_snapshot,
            "acl-snapshot-diff=s" => \$acl_snapshot_diff,
@@ -156,6 +160,8 @@ What to repair in the Filesystem:
   --adminclass               (use repdir.adminclass, repairs adminclasses)
   --extraclass               (use repdir.extraclass, repairs extraclasses)
   --student-home             (use repdir.student_home, repairs homes of students)
+  --parent-home              (use repdir.parent_home, repairs homes of parents)
+  --staff-home               (use repdir.staff_home, repairs homes of staff members)
 
   --all                     (use all the above, top to bottom order)
 
@@ -221,6 +227,8 @@ if ($all==1) {
     $adminclass=1;
     $extraclass=1;
     $student_home=1;
+    $parent_home=1;
+    $staff_home=1;
 }
 
 
@@ -365,6 +373,32 @@ if ($student_home==1) {
 }
 
 
+# --parent-home
+if ($parent_home==1) {
+   &AD_repdir_using_file({ldap=>$ldap,
+                         root_dse=>$root_dse,
+                         root_dns=>$root_dns,
+                         repdir_file=>"repdir.parent_home",
+                         AD=>$ref_AD,
+                         smb_admin_pass=>$smb_admin_pass,
+                         sophomorix_config=>\%sophomorix_config,
+                         sophomorix_result=>\%sophomorix_result,
+                        });
+}
+
+
+# --staff-home
+if ($staff_home==1) {
+   &AD_repdir_using_file({ldap=>$ldap,
+                         root_dse=>$root_dse,
+                         root_dns=>$root_dns,
+                         repdir_file=>"repdir.staff_home",
+                         AD=>$ref_AD,
+                         smb_admin_pass=>$smb_admin_pass,
+                         sophomorix_config=>\%sophomorix_config,
+                         sophomorix_result=>\%sophomorix_result,
+                        });
+}
 
 
 

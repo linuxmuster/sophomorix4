@@ -941,7 +941,23 @@ foreach my $school (@opt_schoollist) {
                           $sam."::".
                           $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixAdminClass'}."::".
                           $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixSchoolname'}."::\n";
+
+            # creating the line
+            my $kill_line=
+                $ref_AD_check->{'sAMAccountName'}{$sam}{'IDENTIFIER_ASCII'}."::".
+                $sam."::".
+                $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixAdminClass'}."::".
+                $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixSchoolname'}."::\n";
             print KILL $kill_line;
+            # create result
+            push @{ $sophomorix_result{'CHECK_RESULT'}{'KILLLIST'} }, $sam;
+            $sophomorix_result{'CHECK_RESULT'}{'KILL'}{$sam}{'IDENTIFIER_ASCII'}=
+               $ref_AD_check->{'sAMAccountName'}{$sam}{'IDENTIFIER_ASCII'};
+            $sophomorix_result{'CHECK_RESULT'}{'KILL'}{$sam}{'sAMAccountName'}=$sam;
+            $sophomorix_result{'CHECK_RESULT'}{'KILL'}{$sam}{'sophomorixAdminClass'}=
+               $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixAdminClass'};
+            $sophomorix_result{'CHECK_RESULT'}{'KILL'}{$sam}{'sophomorixSchoolname'}=
+               $ref_AD_check->{'sAMAccountName'}{$sam}{'sophomorixSchoolname'};
             $counters{'KILL'}++;
         }
 
@@ -2036,7 +2052,7 @@ sub edit_distance {
         $string=$string2;
         $pattern=$string1;
     } else {
-	$string=$string1;
+	    $string=$string1;
         $pattern=$string2;
     }
     my $edit_distance=adist($pattern,$string);

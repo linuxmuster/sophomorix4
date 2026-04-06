@@ -328,7 +328,7 @@ while(<SOPHOMORIXADD>){
         $sophomorix_first_password=&get_plain_password(
                         $role,
                         $file,
-                        $random_pwd, # TRUE/FALSE/birthday
+                        $random_pwd, # TRUE/FALSE/birthday/dice
                         $pwd_length, # length of random pwd
                         $birthdate,
                         \%sophomorix_config,
@@ -439,6 +439,19 @@ rename("$add_file_new","$add_file" );
 			       });
 
 &AD_unbind_admin($ldap);
+
+# Unlock sophomorix in order to update quotas
+if (-e $DevelConf::lock_file){
+    unlink $DevelConf::lock_file;
+    &print_title("Removing lock in $DevelConf::lock_file");
+}
+
+if ($user_count>0) {
+    my $users=join(",",@users_for_quota);
+    system("${DevelConf::path_sbin}/sophomorix-quota --user $users");
+} else {
+    print "NOT setting quota (0 users added).\n";
+}
 
 if ($user_count>0){
     &run_hook_scripts("ADD_HOOK_DIR",\%sophomorix_result,\%sophomorix_config,"TRUE");

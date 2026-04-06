@@ -1,0 +1,5 @@
+# This list is read by sophomorix-repair
+
+# The home of a parent
+SMB::@@SCHOOL@@/$directory_parents/@@USER@@/::root::root::0755::parent.home.ntacl::
+

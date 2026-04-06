@@ -93,8 +93,6 @@ $Data::Dumper::Terse = 1;
             );
 
 
-
-
 # formatted printout
 ######################################################################
 sub print_line {
@@ -4399,7 +4397,7 @@ sub check_config_ini {
                     my ($opt_type,$opt_default)=split(/\|/,$ref_school->{$section}{$parameter});
                     #print "$section is of type $opt_type, default is $opt_default\n";
                     if ($opt_type eq "BOOLEAN" or
-			($parameter eq "RANDOM_PWD" and $config{$section}{$parameter} ne "birthdate")
+			($parameter eq "RANDOM_PWD" and $config{$section}{$parameter} !~ m/^birthdate$|^dice$/)
 		       ){
                         # value in master is BOOLEAN|<default>
                         my $opt_given=$config{$section}{$parameter};
@@ -4418,7 +4416,9 @@ sub check_config_ini {
                                 ){
                             $ref_school->{$section}{$parameter}=$ref_sophomorix_config->{'INI'}{'VARS'}{'BOOLEAN_FALSE'};
                         }
-                    }
+		    } elsif ($parameter eq "RANDOM_PWD" and $config{$section}{$parameter} =~ m/^birthdate$|^dice$/) {
+                        $ref_school->{$section}{$parameter}=$config{$section}{$parameter};
+		    }
                 } else {
                     # overwrite  $ref_school
                     $ref_school->{$section}{$parameter}=$config{$section}{$parameter};
@@ -4548,6 +4548,8 @@ sub load_school_ini {
 	    }
 
             if ($name eq "students" or
+                $name eq "parents" or
+                $name eq "staff" or
                 $name eq "extrastudents"or
                 $name eq "teachers"
 		){
@@ -6122,28 +6124,48 @@ sub get_passwd_charlist {
 sub get_plain_password {
     my ($role,$file,$random,$length,$birthdate,$ref_sophomorix_config,@password_chars)=@_;
     my $password="";
-    my $i;
-    if ($role eq "teacher") {
-        # Teacher
-        if ( $random eq $ref_sophomorix_config->{'INI'}{'VARS'}{'BOOLEAN_TRUE'} or $random eq "birthday") {
-	    $password=&create_plain_password($random,$length,$birthdate,@password_chars);
-        } else {
-	    if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'} eq ""){
-		$password=$DevelConf::student_password_default;
-	    } else {
-                $password=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'};
-	    }
-	}
-    } elsif ($role eq "student") {
-        # Student
-        if ($random  eq $ref_sophomorix_config->{'INI'}{'VARS'}{'BOOLEAN_TRUE'} or $random eq "birthday") {
-	    $password=&create_plain_password($random,$length,$birthdate,@password_chars);
-        } else {
-	    if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'} eq ""){
+    if ( $random eq $ref_sophomorix_config->{'INI'}{'VARS'}{'BOOLEAN_TRUE'} or $random eq "birthday") {
+        $password=&create_plain_password($random,$length,$birthdate,@password_chars);
+    } elsif ( $random eq "dice") {
+        if ($ref_sophomorix_config->{'samba'}{'domain_passwordsettings'}{'Password_complexity'} ne "off") {
+            die "Error: Samba password complexity not disabled!\n" .
+                "In order to use dice passwords, Samba must be configured to allow non-complex passwords using\n" .
+                "'samba-tool domain passwordsettings set --complexity=off'\n";
+        }
+        if (! -e "/usr/local/bin/diceware") {
+            die "Error: diceware not installed.\nIn order to use dice passwords, diceware must be installed:\n'pip3 install diceware'\n";
+        }
+        my $words = $ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_WORDS'};
+        my $lang  = $ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_LANG'};
+        if (! -e "/usr/local/lib/python3.10/dist-packages/diceware/wordlists/wordlist_$lang.txt") {
+            die "Error: Wordlist /usr/local/lib/python3.10/dist-packages/diceware/wordlists/wordlist_$lang.txt does not exists.\n";
+        }
+        my $sepopt="";
+        if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_SEPARATOR'} ne "") {
+            $sepopt="-d '$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_SEPARATOR'}'";
+        }
+        my $capsopt="";
+        if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_CAPS'} eq $ref_sophomorix_config->{'INI'}{'VARS'}{'BOOLEAN_FALSE'}) {
+            $capsopt="--no-caps"
+        }
+        do {
+            $password=`diceware $sepopt $capsopt -n $words -w $lang`;
+            my $rc = $?>>8;
+            if ($rc != 0) {
+                die "Error: diceware terminated with rc $rc\n";
+            }
+            chomp($password);
+            print "Info: diced password too short. Dicing again.\n";
+        } while (length($password) < $ref_sophomorix_config->{'samba'}{'domain_passwordsettings'}{'Minimum_password_length'});
+    } else {
+        if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'} eq ""){
+            if ($role eq "teacher") {
                 $password=$DevelConf::teacher_password_default;
-	    } else {
-                $password=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'};
-	    }
+            } else {
+                $password=$DevelConf::student_password_default;
+            }
+        } else {
+            $password=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DEFAULT_NONRANDOM_PWD'};
         }
     }
     return $password;
@@ -6208,10 +6230,18 @@ sub get_homedirectory {
         $smb_rel_path="students/".$group_basename."/".$user;
         $homedirectory="\\\\".$dns."\\".$school_smbshare."\\students\\".$group_basename."\\".$user;
         $unix_home=$DevelConf::homedir_all_schools."/".$school."/students/".$group_basename."/".$user;
+    } elsif ($role eq "staff"){
+        $smb_rel_path="staff/".$group_basename."/".$user;
+        $homedirectory="\\\\".$dns."\\".$school_smbshare."\\staff\\".$group_basename."\\".$user;
+        $unix_home=$DevelConf::homedir_all_schools."/".$school."/staff/".$group_basename."/".$user;
     } elsif ($role eq "teacher"){
         $smb_rel_path="teachers/".$user;
         $homedirectory="\\\\".$dns."\\".$school_smbshare."\\teachers\\".$user;
         $unix_home=$DevelConf::homedir_all_schools."/".$school."/teachers/".$user;
+    } elsif ($role eq "parent"){
+        $smb_rel_path="parents/".$user;
+        $homedirectory="\\\\".$dns."\\".$school_smbshare."\\parents\\".$user;
+        $unix_home=$DevelConf::homedir_all_schools."/".$school."/parents/".$user;
     } elsif ($role eq $ref_sophomorix_config->{'INI'}{'EXAMMODE'}{'USER_ROLE'}){
         # examuser
         if ($group_basename eq ""){

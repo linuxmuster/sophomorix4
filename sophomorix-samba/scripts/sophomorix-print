@@ -90,6 +90,7 @@ my $back_in_time;# undef
 # template options
 my $template="";
 my $one_per_page=0;
+my $nosplit_names=0;
 my $pp=0;
 my $lang_by_option="";
 
@@ -113,6 +114,7 @@ my $testopt=GetOptions(
            "command=s" => \$command,
            "back-in-time|backintime=i" => \$back_in_time,
            "one-per-page" => \$one_per_page,
+           "nosplit-names" => \$nosplit_names,
           );
 
 
@@ -703,7 +705,12 @@ sub create_csv_files {
     @{ $ref_printlist } = sort @{ $ref_printlist };
     foreach my $item ( @{ $ref_printlist } ){
         my @data=split(/;/,$item);
-        my $csv=$data[1]." ".$data[0].";".$data[5].";".$data[2].";".$data[3].";".$data[10].";";
+        my $csv = "";
+        if ($nosplit_names==1) {
+            $csv = $data[1] . ";" . $data[0] . ";" . $data[5] . ";" . $data[2] . ";" . $data[3] . ";" . $data[10] . ";";
+        } else {
+            $csv = $data[1] . " " . $data[0] . ";" . $data[5] . ";" . $data[2] . ";" . $data[3] . ";" . $data[10] . ";";
+        }
         print CSV $csv."\l\r";
         print UNIXCSV $csv."\n";
         my $webuntis=$data[5].";".$data[0].";".$data[1].";".$data[2].";".$data[6].", ".$data[7].";".$data[10].";";
@@ -814,8 +821,9 @@ sub latex_from_template_and_datablock {
         }
  
         # (use hyphen here for template)
+	my $filename_footer=&string_to_latex($output_file_basename);
         $line=~s/\\textcolor\{red\}\{SCHOOL-LONGNAME\}/$schoolstring/;
-        $line=~s/\\textcolor\{red\}\{FILENAME\}/$output_file_basename/;
+        $line=~s/\\textcolor\{red\}\{FILENAME\}/$filename_footer/;
         $line=~s/\\textcolor\{red\}\{ADMINS-PRINT\}/$admins_print/;
 
 

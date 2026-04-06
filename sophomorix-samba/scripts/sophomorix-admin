@@ -668,7 +668,7 @@ sub choose_password {
         open(SECRET, ">$pwd_file") || die "ERROR: $! $pwd_file";
         print SECRET $password;
         close(SECRET);
-        system("chown root.root $pwd_file");
+        system("chown root:root $pwd_file");
         system("chmod 0600 $pwd_file");
     } elsif ($random_password_show==1){
         my @password_chars=&get_passwd_charlist();

@@ -14,8 +14,12 @@ SMB::@@SCHOOL@@::root::root::0755::school.ntacl::ntaclonly::
 SMB::@@SCHOOL@@/$directory_management/::root::root::0755::school-management.ntacl::
 # topdir for students
 SMB::@@SCHOOL@@/$directory_students/::root::root::0755::school-students.ntacl::
+# topdir for parents
+SMB::@@SCHOOL@@/$directory_parents/::root::root::0755::school-parents.ntacl::
 # topdir for teachers
 SMB::@@SCHOOL@@/$directory_teachers/::root::root::0755::school-teachers.ntacl::
+# topdir for staff
+SMB::@@SCHOOL@@/$directory_staff/::root::root::0755::school-staff.ntacl::
 # topdir for examusers
 SMB::@@SCHOOL@@/$directory_examusers/::root::root::0755::school-examusers.ntacl::
 # share

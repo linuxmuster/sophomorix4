@@ -6,6 +6,7 @@
 
 # modules
 use strict;
+use warnings;
 use Getopt::Long;
 Getopt::Long::Configure ("bundling");
 use Sophomorix::SophomorixConfig;
@@ -736,6 +737,7 @@ foreach my $device (keys %{$devices_file{'computer'}}) {
                 # no update if equal
             } else {
                 $update_computer{$device}{'REPLACE'}{'sophomorixComputerRoom'}=$devices_file{'computer'}{$device}{'sophomorixComputerRoom'};
+                $update_computer{$device}{'REPLACE'}{'sophomorixAdminClass'}=$devices_file{'computer'}{$device}{'sophomorixComputerRoom'};
                 $update++;
             }
         }
@@ -1270,7 +1272,7 @@ if ($sync==1 and $no_sync==0){ # $no_sync==0 -> SYNC
                              sophomorix_result=>\%sophomorix_result,
                            });
         $computer_count_create++;
-        # make sure that the room exists
+        # make sure that the room group exists
         if (not exists $room_created{$school}{$room_basename}){
             my $room_description=$room_basename." in ".$school;
             &AD_group_create({ldap=>$ldap,
@@ -1310,6 +1312,34 @@ if ($sync==1 and $no_sync==0){ # $no_sync==0 -> SYNC
     &print_title("Updating $max_computer_count_update computer accounts:");
     my $computer_count_update=1;
     foreach my $computer (@updating_computers){
+        my $room_saved=$devices_file{'computer'}{$computer}{'ROOM'};
+        my $room_basename=$devices_file{'computer'}{$computer}{'ROOM_BASENAME'};
+        my $ws_saved=$devices_file{'computer'}{$computer}{'COMPUTER'};
+        my $filename=$devices_file{'computer'}{$computer}{'FILENAME'};
+
+        # make sure that the room group exists
+        if (not exists $room_created{$school}{$room_basename}){
+            my $room_description=$room_basename." in ".$school;
+            &AD_group_create({ldap=>$ldap,
+                              root_dse=>$root_dse,
+                              root_dns=>$root_dns,
+                              group=>$room_saved,
+                              group_basename=>$room_basename,
+                              description=>$room_description,
+                              school=>$school,
+                              status=>"P",
+                              type=>$sophomorix_config{'FILES'}{'DEVICE_FILE'}{$filename}{'sophomorixType'},
+                              sub_ou=>"OU=".$room_basename.",".$sophomorix_config{'INI'}{'OU'}{'AD_devices_ou'},
+                              smb_admin_pass=>$smb_admin_pass,
+                              sophomorixRoomIPs=>\@{ $devices_file{'room'}{$room_saved}{'IPv4LIST'} },
+                              sophomorixRoomMACs=>\@{ $devices_file{'room'}{$room_saved}{'MACLIST'} },
+                              sophomorixRoomComputers=>\@{ $devices_file{'room'}{$room_saved}{'HOSTLIST'} },
+                              sophomorix_config=>\%sophomorix_config,
+                              sophomorix_result=>\%sophomorix_result,
+                            });
+            # remember group
+            $room_created{$school}{$room_basename}="already created";
+        }
         &AD_computer_update({ldap=>$ldap,
                              root_dse=>$root_dse,
                              computer=>$computer,
@@ -1318,9 +1348,19 @@ if ($sync==1 and $no_sync==0){ # $no_sync==0 -> SYNC
                              replace=>\%update_computer,
                              max_computer_count=>$max_computer_count_update,
                              json=>$json,
+                             school=>$devices_file{'computer'}{$computer}{'SCHOOL'},
+                             room_basename=>$devices_file{'computer'}{$computer}{'ROOM_BASENAME'},
+                             filename=>$devices_file{'computer'}{$computer}{'FILENAME'},
+                             name=>$devices_file{'computer'}{$computer}{'COMPUTER'},
                              sophomorix_config=>\%sophomorix_config,
                              sophomorix_result=>\%sophomorix_result,
                            });
+        # add computer to its room
+        &AD_group_addmember({ldap => $ldap,
+                             root_dse => $root_dse,
+                             group => $room_saved,
+                             addmember => $ws_saved,
+                            });
         $computer_count_update++;
     }
 
