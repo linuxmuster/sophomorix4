@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 # This script converts the cvs dump of ASV-BW 
 # to the students.csv format for linuxmuster.net 7
-# The filter removes students, which leavingdate ("Austritt") is earlier the the runtime date of the script
 #
 
 use Data::Dumper;
@@ -16,12 +15,15 @@ my $source=$ARGV[0];
 my $target=$ARGV[1];
 
 my $tmp="/var/lib/sophomorix/tmp/students.csv.filter.tmp-asv-csv.filter";
+my $leaving_tmp="/var/lib/sophomorix/tmp/students.csv.filter.tmp-asv-csv.filter.leaving";
 
 my %unid_store=();
 my %line_store=();
 my $linecount=0;
 my $filtercount=0;
 my $headercount=0;
+my $leaving_count=0;
+my @leaving_list=();
 
 my %header=();
 
@@ -45,6 +47,7 @@ $header{'known_headers'}{'sn'}="Familienname";
 $header{'known_headers'}{'givenName'}="Vornamen";
 $header{'known_headers'}{'birthday'}="Geburtsdatum";
 $header{'known_headers'}{'unid'}="Schueler-ID";
+$header{'known_headers'}{'gender'}="M/W";
 $header{'known_headers'}{'entry'}="Eintritt";
 $header{'known_headers'}{'leaving'}="Austritt";
 
@@ -76,6 +79,7 @@ open(TMP, ">$tmp") || die "Error: $! $tmp not found!";
 print TMP "# created by filterscript\n";
 print TMP "# $0\n";
 print TMP "# @ARGV\n";
+open(LEAVINGTMP, ">$leaving_tmp") || die "Error: $! $leaving_tmp not found!";
 
 
 
@@ -130,6 +134,7 @@ while (<SOURCE>){
     my $given_name=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'givenName'}}-1];
     my $birthday=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'birthday'}}-1];
     my $unid=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'unid'}}-1];
+    my $gender=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'gender'}}-1];
     my $entry=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'entry'}}-1];
     my $leaving=$items[$header{'fields_in_input_file'}{$header{'known_headers'}{'leaving'}}-1];
 
@@ -185,15 +190,23 @@ while (<SOURCE>){
         # check the leaving date
 	my ($day,$month,$year)=split(/\./,$leaving);
 	my $epoch_user=timelocal(0,0,0, $day , ($month-1), $year);
-	if ($epoch>$epoch_user){
-	    # current time has passed leaving date
-            # remove user
-            print "   $given_name $sn HAS LEFT >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
-	    next; # skip generation of line
+	if ($epoch_user>$epoch){
+            # keep user
+            print "$given_name $sn WILL BE LEAVING >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
 	} else {
-            # ALL other cases (syntax error in leaving_date, ....)
-	    # keep user                                                                                                   print "   $given_name $sn WILL BE LEAVING >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
-
+            # remove user
+            print "$given_name $sn HAS LEFT >$leaving< >$epoch_user< (UNIX epoch $epoch)\n";
+	    $leaving_count++;
+	    my $leaving_line=$class.";".
+                      $sn.";".
+                      $given_name.";".
+                      $birthday.";".
+		      $unid.";".
+		      $gender.";".
+		      $entry.";".
+		      $leaving."";
+            print LEAVINGTMP $leaving_line."\n";
+	    next; # skip generation of line
 	}
     }
 
@@ -212,9 +225,12 @@ while (<SOURCE>){
 
 close(SOURCE);
 close(TMP);
+close(LEAVINGTMP);
+
 
 
 # if all worked well: copy file to final location
+print "# $leaving_count users removed because of leavingdate: $leaving_tmp\n";
 if ($headercount==1){
     print "# 1 Header found. Looks good! #\n";
 } else {
