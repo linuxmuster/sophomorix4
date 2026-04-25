@@ -1,3 +1,13 @@
+sophomorix4 (7.3.15) lmn73; urgency=medium
+
+  * prepared tests for ubuntu 26.04
+  * Merge pull request #182 from linuxmuster/bionic
+  * updated output of filtered entries
+  * Add access to shared projects to staff and parents.
+  * Fix group selection for repair. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sat, 25 Apr 2026 18:33:38 +0200
+
 sophomorix4 (7.4.1) lmn74; urgency=medium
 
   * New package for 7.4.
