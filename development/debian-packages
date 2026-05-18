@@ -1,6 +1,7 @@
 # all
 DONE:libnet-ldap-perl              # Net::ldap
 DONE libunicode-map8-perl          # password generation
+DONE libnetaddr-ip-perl            # IP subnet checks
 
 # developer
 ldap-utils
