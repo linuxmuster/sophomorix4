@@ -1,3 +1,9 @@
+sophomorix4 (7.4.2) lmn74; urgency=medium
+
+  * Add samba dependencies.
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sat, 20 Jun 2026 14:19:08 +0200
+
 sophomorix4 (7.3.15) lmn73; urgency=medium
 
   * prepared tests for ubuntu 26.04
