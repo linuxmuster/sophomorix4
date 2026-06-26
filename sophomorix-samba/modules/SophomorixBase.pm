@@ -5683,7 +5683,16 @@ sub create_test_login {
 
         ############################################################
         # test proposed login
-        $login_name_to_check="$login_part_1"."$login_part_2";
+        my $login_separator=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'LOGIN_SEPARATOR'};
+        if (not defined $login_separator){
+            $login_separator="";
+        }
+        if ($login_part_1 ne "" and $login_part_2 ne "" and $login_separator ne ""){
+            # insert the configured separator only between two non-empty parts
+            $login_name_to_check="$login_part_1"."$login_separator"."$login_part_2";
+        } else {
+            $login_name_to_check="$login_part_1"."$login_part_2";
+        }
         if (not exists $ref_forbidden_logins->{'FORBIDDEN'}{$login_name_to_check} and
             not exists $ref_login_avoid->{'AVOID_LOGINS'}{$login_name_to_check} ){
             # not forbidden an not to be avoided -> use it!
@@ -5705,10 +5714,21 @@ sub create_test_login {
         ############################################################
         # check wish login
         $login_char_length = length $login_wish;
-        if (not $login_wish=~m/^[a-z0-9-_]+$/){
-#	    my $error_message="'".$login_wish."' contains invalid characters for a login name! (Allowed are: a-z0-9-_) ".
+        # the allowed characters for a login name are configurable per user file (LOGIN_REGEX)
+        my $login_regex=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'LOGIN_REGEX'};
+        if (not defined $login_regex or $login_regex eq ""){
+            $login_regex='^[a-z0-9._-]+$';
+        }
+        # the maximum login name length is configurable (LOGIN_MAXLEN, 0 disables the check)
+        # default 20 = maximum length of an AD sAMAccountName
+        my $login_maxlen=$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'LOGIN_MAXLEN'};
+        if (not defined $login_maxlen or $login_maxlen eq ""){
+            $login_maxlen=20;
+        }
+        if (not $login_wish=~m/$login_regex/){
+#	    my $error_message="'".$login_wish."' contains invalid characters for a login name! (Allowed pattern: $login_regex) ".
 #                              "| $file LINE $line_num: $ref_users_file->{$file}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
-	    my $error_message="'".$login_wish."' contains invalid characters for a login name! (Allowed are: a-z0-9-_) ".
+	    my $error_message="'".$login_wish."' contains invalid characters for a login name! (Allowed pattern: ".$login_regex.") ".
                               "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
             return ("---",$error_message);
         } elsif ($login_char_length<2){
@@ -5717,10 +5737,14 @@ sub create_test_login {
 	    my $error_message="'".$login_wish."' is to short for a login name! (Minimum number of characters for a login name is 2) ".
                               "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
             return ("---",$error_message);
-        } elsif (not $login_wish=~m/^[a-z]+/){
-#	    my $error_message="'".$login_wish."' does not begin with a-z ".
+        } elsif ($login_maxlen>0 and $login_char_length>$login_maxlen){
+	    my $error_message="'".$login_wish."' is to long for a login name! (Maximum number of characters for a login name is ".$login_maxlen.") ".
+                              "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
+            return ("---",$error_message);
+        } elsif (not $login_wish=~m/^[[:alnum:]]+/){
+#	    my $error_message="'".$login_wish."' does not begin with an alpha-numeric character ".
 #                              "| $file LINE $line_num: $ref_users_file->{$file}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
-	    my $error_message="'".$login_wish."' does not begin with a-z ".
+	    my $error_message="'".$login_wish."' does not begin with an alpha-numeric character ".
                               "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
              return ("---",$error_message);
         } elsif (exists $ref_forbidden_logins->{'FORBIDDEN'}{$login_wish}){
