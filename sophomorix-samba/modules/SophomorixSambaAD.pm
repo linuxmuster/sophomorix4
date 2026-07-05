@@ -7825,11 +7825,13 @@ sub AD_get_printdata {
     if (not defined $users){$users="FALSE"};
 
     if ($users eq "TRUE"){
-        # sophomorix students,teachers from ldap
+        # sophomorix students,teachers,staff,parents from ldap
         my $filter="(&(objectClass=user)(sophomorixSchoolname=".
            $school.")(|(sophomorixRole=".
            $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STUDENT'}.")(sophomorixRole=".
-           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'TEACHER'}.")))";
+           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'TEACHER'}.")(sophomorixRole=".
+           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'STAFF'}.")(sophomorixRole=".
+           $ref_sophomorix_config->{'INI'}{'ROLE_USER'}{'PARENT'}.")))";
         $mesg = $ldap->search( # perform a search
                        base   => $root_dse,
                        scope => 'sub',
