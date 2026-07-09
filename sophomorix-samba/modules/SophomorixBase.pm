@@ -5717,10 +5717,10 @@ sub create_test_login {
 	    my $error_message="'".$login_wish."' is to short for a login name! (Minimum number of characters for a login name is 2) ".
                               "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
             return ("---",$error_message);
-        } elsif (not $login_wish=~m/^[a-z]+/){
-#	    my $error_message="'".$login_wish."' does not begin with a-z ".
+        } elsif (not $login_wish=~m/^[[:alnum:]]+/){
+#	    my $error_message="'".$login_wish."' does not begin with an alpha-numeric character ".
 #                              "| $file LINE $line_num: $ref_users_file->{$file}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
-	    my $error_message="'".$login_wish."' does not begin with a-z ".
+	    my $error_message="'".$login_wish."' does not begin with an alpha-numeric character ".
                               "| $file LINE $line_num: $ref_users_file->{$school}{'identifier_ascii'}{$identifier_ascii}{LINE_OLD}";
              return ("---",$error_message);
         } elsif (exists $ref_forbidden_logins->{'FORBIDDEN'}{$login_wish}){
