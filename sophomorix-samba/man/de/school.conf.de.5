@@ -156,6 +156,18 @@ Text
 
 Text
 
+.B LOGIN_SEPARATOR
+
+Trennzeichen, das bei der automatischen Erzeugung von Loginnamen zwischen den beiden Namensteilen eingefügt wird. Standard ist leer (kein Trennzeichen, wie bisher). Beispiel: Mit dem Wert '.' und der Reihenfolge firstname-surname entsteht z.B. 'max.mueller'. Das Trennzeichen wird nur eingefügt, wenn beide Namensteile nicht leer sind.
+
+.B LOGIN_REGEX
+
+Regulärer Ausdruck, der die in einem (manuell in der CSV vorgegebenen) Loginnamen erlaubten Zeichen festlegt. Standard ist '^[a-z0-9._-]+$', d.h. Kleinbuchstaben, Ziffern, Punkt, Unterstrich und Minus sind erlaubt. Der Ausdruck ist frei editierbar; er muss als vollständige, verankerte Regex angegeben werden (z.B. '^[a-z0-9._-]+$'). Zusätzlich gilt unabhängig davon: Der Loginname muss mit einem alphanumerischen Zeichen beginnen und mindestens 2 Zeichen lang sein.
+
+.B LOGIN_MAXLEN
+
+Maximale Anzahl Zeichen für einen (manuell in der CSV vorgegebenen) Loginnamen. Standard ist 20 (maximale Länge eines AD-sAMAccountName). Der Wert 0 deaktiviert die Prüfung.
+
 .B RANDOM_PWD
 
 Standart ist 'yes'. Damit werden zufällige Passwörter erzeugt. Wenn auf 'no' gestellt wird, siehe DEFAULT_NONRANDOM_PWD.
