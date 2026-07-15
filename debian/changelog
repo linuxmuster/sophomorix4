@@ -1,3 +1,10 @@
+sophomorix4 (7.4.3) lmn74; urgency=medium
+
+  * Make loginname format configurable (separator, regex, max length)
+    @hermanntoast
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Wed, 15 Jul 2026 11:15:43 +0200
+
 sophomorix4 (7.3.16) lmn73; urgency=medium
 
   * Allow password print of staff and parents.
