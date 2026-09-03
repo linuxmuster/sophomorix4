@@ -1672,7 +1672,8 @@ sub test_user_update {
                                            ${$old_surname_ascii_ref},
                                            ${$new_surname_ascii_ref},
 	                                   $Match{$school}{'ACTION'}{$line_new}{'filename'},
-	                                   $adminclass);
+	                                   $adminclass,
+                                       ${$old_mail_ref});
     # test for update
     if ( ${$new_mail_ref} eq  ${$old_mail_ref} ){
         # no update

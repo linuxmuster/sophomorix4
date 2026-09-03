@@ -5859,7 +5859,8 @@ sub AD_create_new_mail {
 	$lastname_old,
 	$lastname_new,
 	$filename_new,
-	$class_new) = @_;
+	$class_new,
+    $mail_old) = @_;
 
     my $firstname;
     if ($firstname_new ne "---"){
@@ -5895,19 +5896,23 @@ sub AD_create_new_mail {
     my $mail_local_part;
     $mail_local_part=$sam; # default
     if ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "firstname"){
-	$mail_local_part=$firstname;
+	    $mail_local_part=$firstname;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "lastname"){
-	$mail_local_part=$lastname;
+	    $mail_local_part=$lastname;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "firstname.lastname"){
-	$mail_local_part=$firstname.".".$lastname;
+	    $mail_local_part=$firstname.".".$lastname;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "lastname.firstname"){
-	$mail_local_part=$lastname.".".$firstname;
+	    $mail_local_part=$lastname.".".$firstname;
+    } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "manual"){
+        if ($mail_old ne "") {
+            return $mail_old;
+        }
+        $mail_local_part=$sam;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} ne ""){
         my $error_message="$ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} not allowed as 'MAIL_LOCAL_PART_SCHEME' in school '".$school_file.
-                          "' | Allowed: firstname|lastname|firstname.lastname|lastname.firstname";
+                          "' | Allowed: firstname|lastname|firstname.lastname|lastname.firstname|manual";
         &Sophomorix::SophomorixBase::log_script_exit($error_message,1,1,0,
                          $ref_arguments,$ref_sophomorix_result,$ref_sophomorix_config,$json);
-
     }
 
     # override MAIL_LOCAL_PART by MAIL_LOCAL_PART_MAP, if there
