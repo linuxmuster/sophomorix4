@@ -64,8 +64,9 @@ my @arguments = @ARGV;
 # classtype
 my $class_type="adminclass"; # default is adminclass
 
-# update teachers groups in classes
+# update the subgroups of the classes (<class>-teachers/-students/-parents)
 my $update_teachers_groups = 0;
+my $update_member_groups = 0;
 
 ############################################################
 # Option handling
@@ -826,6 +827,7 @@ if (defined $options{'gidnumber-migrate'}){
 # members
 # --members <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'members'}){
+    $update_member_groups = 1;
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         &AD_group_update({ldap=>$ldap,
                           root_dse=>$root_dse,
@@ -842,6 +844,7 @@ if (defined $options{'members'}){
  
 # --addmembers <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'addmembers'}){
+    $update_member_groups = 1;
     my @addmembers=split(/,/,$options{'addmembers'});
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         my @old_members = &AD_dn_fetch_multivalue($ldap,
@@ -865,6 +868,7 @@ if (defined $options{'addmembers'}){
  
 # --removemembers <user1,user2> --class <class1>,<class2>,...
 if (defined $options{'removemembers'}){
+    $update_member_groups = 1;
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
         my @old_members = &AD_dn_fetch_multivalue($ldap,
                                                   $root_dse,
@@ -949,19 +953,27 @@ if (defined $options{'removeadmins'}){
     }
 }
 
-# Update teachers groups like 8a-teachers if adminlists has changed (--removeadmins, --addadmins, --admins)
-if ($update_teachers_groups == 1){
+# Update the subgroups like 8a-teachers/8a-students/8a-parents if the admin list
+# (--admins, --addadmins, --removeadmins) or the member list
+# (--members, --addmembers, --removemembers) has changed
+if ($update_teachers_groups == 1 or $update_member_groups == 1){
+    # Only sync the subgroups which can have changed: the admins of a class are
+    # its teachers, its members are its students (and their parents)
+    my @sync_options=();
+    push @sync_options, "--teachers" if $update_teachers_groups == 1;
+    push @sync_options, "--students", "--parents" if $update_member_groups == 1;
+    my $sync_options=join(" ",@sync_options);
     my $lmncli="/usr/sbin/lmncli";
     if (not -x $lmncli){
-        print "   * WARNING: $lmncli not found or not executable, teachers groups were not updated\n";
+        print "   * WARNING: $lmncli not found or not executable, the subgroups of the classes were not updated\n";
     } else {
         foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }) {
             my $school=$classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'};
             # lmncli writes its report on stdout: keep it out of the JSON stream of -j/-jj
-            my $rc=system("$lmncli schoolclass sync -c '$class_valid' --teachers -s '$school' > /dev/null 2>&1");
+            my $rc=system("$lmncli schoolclass sync -c '$class_valid' $sync_options -s '$school' > /dev/null 2>&1");
             if ($rc != 0){
                 print "   * WARNING: $lmncli schoolclass sync failed for $class_valid ".
-                      "in $school (exit ".($rc >> 8)."), the group $class_valid-teachers may be outdated\n";
+                      "in $school (exit ".($rc >> 8)."), the subgroups of $class_valid may be outdated\n";
             }
         }
     }
