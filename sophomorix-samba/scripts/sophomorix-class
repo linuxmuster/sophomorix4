@@ -951,8 +951,19 @@ if (defined $options{'removeadmins'}){
 
 # Update teachers groups like 8a-teachers if adminlists has changed (--removeadmins, --addadmins, --admins)
 if ($update_teachers_groups == 1){
-    foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }) {
-        system("/usr/sbin/lmncli -c $class_valid --sync-teachers -s $classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'}");
+    my $lmncli="/usr/sbin/lmncli";
+    if (not -x $lmncli){
+        print "   * WARNING: $lmncli not found or not executable, teachers groups were not updated\n";
+    } else {
+        foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }) {
+            my $school=$classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'};
+            # lmncli writes its report on stdout: keep it out of the JSON stream of -j/-jj
+            my $rc=system("$lmncli schoolclass sync -c '$class_valid' --teachers -s '$school' > /dev/null 2>&1");
+            if ($rc != 0){
+                print "   * WARNING: $lmncli schoolclass sync failed for $class_valid ".
+                      "in $school (exit ".($rc >> 8)."), the group $class_valid-teachers may be outdated\n";
+            }
+        }
     }
 }
 
