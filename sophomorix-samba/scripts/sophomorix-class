@@ -45,6 +45,7 @@ use Sophomorix::SophomorixSambaAD qw(
                                  AD_unbind_admin
                                  AD_user_create
                                  AD_get_user
+                                 AD_get_group
                                  AD_group_create
                                  AD_group_kill
                                  AD_group_addmember
@@ -60,6 +61,10 @@ use Sophomorix::SophomorixSambaAD qw(
                                  AD_get_AD_for_check
                                     );
 my @arguments = @ARGV;
+
+# lmncli maintains the subgroups of the classes (<class>-teachers/-students/
+# -parents), which sophomorix does not know about
+my $lmncli="/usr/sbin/lmncli";
 
 # classtype
 my $class_type="adminclass"; # default is adminclass
@@ -363,9 +368,40 @@ if (defined $options{'update-maildomain'}){
 
 
 
+############################################################
+# Clean up what a killed schoolclass leaves behind
+############################################################
+# AD_group_kill only deletes the schoolclass group itself. The subgroups
+# <class>-students/-teachers/-parents and the OU of the class are created and
+# owned by linuxmusterTools: lmncli is called to remove them, as it is called
+# to update them when the members of a class change. It refuses to delete
+# anything as long as the schoolclass still exists, so calling it after a
+# failed kill is harmless.
+sub cleanup_schoolclass_groups {
+    my ($class,$school) = @_;
+    if (not defined $school or $school eq ""){
+        print "   * WARNING: unknown school for $class, ".
+              "the subgroups of $class were not deleted\n";
+        return;
+    }
+    if (not -x $lmncli){
+        print "   * WARNING: $lmncli not found or not executable, ".
+              "the subgroups of $class were not deleted\n";
+        return;
+    }
+    # lmncli writes its report on stdout: keep it out of the JSON stream of -j/-jj
+    my $rc=system("$lmncli schoolclass cleanup -c '$class' -s '$school' > /dev/null 2>&1");
+    if ($rc != 0){
+        print "   * WARNING: $lmncli schoolclass cleanup failed for $class ".
+              "in $school (exit ".($rc >> 8)."), the subgroups of $class ".
+              "may still exist\n";
+    }
+}
+
 # --delete-all-empty-classes / --delete-all-teacheronly-classes
 if (defined $options{'delete-all-empty-classes'} or defined $options{'delete-all-teacheronly-classes'}){
     my @to_delete=();
+    my %school_of_class=();
     my $ref_group_v=&AD_get_groups_v({ldap=>$ldap,
                                    root_dse=>$root_dse,
                                    root_dns=>$root_dns,
@@ -434,6 +470,7 @@ if (defined $options{'delete-all-empty-classes'} or defined $options{'delete-all
                             # delete empty class
                             print "  -> $adminclass has $member_count members: $adminclass can be deleted!\n";
                             push @to_delete,$adminclass;
+                            $school_of_class{$adminclass}=$school;
                         } else {
                             print "  -> $adminclass has still $member_count member(s): Not deleting!\n";
                         }
@@ -442,6 +479,7 @@ if (defined $options{'delete-all-empty-classes'} or defined $options{'delete-all
                             # delete teachers only class
                             print "  -> $adminclass has only teachers as members: $adminclass can be deleted!\n";
                             push @to_delete,$adminclass;
+                            $school_of_class{$adminclass}=$school;
                         } else {
                             print "  -> $adminclass ($status) has $not_teacher_count non-teacher(s) as members: Not deleting!\n";
                         }
@@ -497,6 +535,7 @@ if (defined $options{'delete-all-empty-classes'} or defined $options{'delete-all
                         type=>"adminclass",
                         sophomorix_config=>\%sophomorix_config,
                       });
+        &cleanup_schoolclass_groups($adminclass,$school_of_class{$adminclass});
     }
     &AD_unbind_admin($ldap);
     &log_script_end(\@arguments,\%sophomorix_result,\%sophomorix_config,$options{'json'});
@@ -963,7 +1002,6 @@ if ($update_teachers_groups == 1 or $update_member_groups == 1){
     push @sync_options, "--teachers" if $update_teachers_groups == 1;
     push @sync_options, "--students", "--parents" if $update_member_groups == 1;
     my $sync_options=join(" ",@sync_options);
-    my $lmncli="/usr/sbin/lmncli";
     if (not -x $lmncli){
         print "   * WARNING: $lmncli not found or not executable, the subgroups of the classes were not updated\n";
     } else {
@@ -982,6 +1020,14 @@ if ($update_teachers_groups == 1 or $update_member_groups == 1){
 # --kill --class <class1>,<class2>,...
 if (defined $options{'kill'} and defined $options{'class'}){
     foreach my $class_valid (@{ $classes{'CLASS_VALID_LIST'} }){
+        # The real type has to be read before the class is killed: only an
+        # adminclass owns subgroups created by linuxmusterTools, and --all
+        # accepts any class type ($class_type is "class" then)
+        my ($existing_unused,$type_ad,@unused)=&AD_get_group({ldap=>$ldap,
+                                                              root_dse=>$root_dse,
+                                                              root_dns=>$root_dns,
+                                                              group=>$class_valid,
+                                                            });
         &AD_group_kill({ldap=>$ldap,
                         root_dse=>$root_dse,
                         root_dns=>$root_dns,
@@ -990,6 +1036,10 @@ if (defined $options{'kill'} and defined $options{'class'}){
                         type=>$class_type,
                         sophomorix_config=>\%sophomorix_config,
                       });
+        if ($type_ad eq "adminclass"){
+            &cleanup_schoolclass_groups($class_valid,
+                                        $classes{'CLASS_VALID_DATA'}{$class_valid}{'SCHOOL'});
+        }
     }
 }
 
