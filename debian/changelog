@@ -1,3 +1,16 @@
+sophomorix4 (7.4.4) lmn74; urgency=medium
+
+  * [sophomorix-class] Clean up the <class>-teachers/-students/-parents
+    subgroups when a schoolclass is killed: sophomorix-class deleted the
+    schoolclass group only and left them, and the OU of the class,
+    behind.
+  * [sophomorix-class] Update the members of all the subgroups, not only
+    the teachers one.
+  * [sophomorix-class] Use the new lmncli parameters.
+ 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 13 Sep 2026 16:09:51 +0200
+
 sophomorix4 (7.4.3) lmn74; urgency=medium
 
   * Make loginname format configurable (separator, regex, max length)
