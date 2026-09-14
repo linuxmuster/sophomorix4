@@ -6156,14 +6156,13 @@ sub get_plain_password {
                 "In order to use dice passwords, Samba must be configured to allow non-complex passwords using\n" .
                 "'samba-tool domain passwordsettings set --complexity=off'\n";
         }
-        if (! -e "/usr/local/bin/diceware") {
-            die "Error: diceware not installed.\nIn order to use dice passwords, diceware must be installed:\n'pip3 install diceware'\n";
-        }
+        # No check of the diceware binary nor of the wordlist here: their
+        # paths depend on how diceware was installed and on the python
+        # version of the distribution. diceware itself reports a missing
+        # binary and an unknown wordlist, and the return code is checked
+        # below.
         my $words = $ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_WORDS'};
         my $lang  = $ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_LANG'};
-        if (! -e "/usr/local/lib/python3.10/dist-packages/diceware/wordlists/wordlist_$lang.txt") {
-            die "Error: Wordlist /usr/local/lib/python3.10/dist-packages/diceware/wordlists/wordlist_$lang.txt does not exists.\n";
-        }
         my $sepopt="";
         if ($ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_SEPARATOR'} ne "") {
             $sepopt="-d '$ref_sophomorix_config->{'FILES'}{'USER_FILE'}{$file}{'DICE_SEPARATOR'}'";

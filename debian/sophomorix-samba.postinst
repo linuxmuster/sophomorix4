@@ -5,6 +5,17 @@
 
 set -e
 
+# Up to 7.4.4, sophomorix-postinst installed the diceware python package with
+# pip. It is now a debian dependency (see debian/control), but the pip copy in
+# /usr/local/bin shadows /usr/bin/diceware in the PATH: without this cleanup the
+# obsolete copy keeps being used and is never upgraded. Only /usr/local is
+# touched here, never the files of the debian package.
+remove_pip_diceware() {
+    rm -f /usr/local/bin/diceware
+    rm -rf /usr/local/lib/python3*/dist-packages/diceware \
+           /usr/local/lib/python3*/dist-packages/diceware-*.dist-info
+}
+
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
 #        * <old-postinst> `abort-upgrade' <new version>
@@ -25,12 +36,16 @@ set -e
 
 case "$1" in
     configure)
+    remove_pip_diceware
+
     # calling the postinst-script of sophomorix
     sophomorix-postinst
     ;;
 
     install)
     # option install is necessary to avoid errors ???
+
+    remove_pip_diceware
 
     # calling the postinst-script of sophomorix
     sophomorix-postinst
@@ -39,6 +54,8 @@ case "$1" in
 
     upgrade)
     # option upgrade is necessary to avoid errors ???
+    remove_pip_diceware
+
     # calling the postinst-script of sophomorix
     sophomorix-postinst
     ;;
