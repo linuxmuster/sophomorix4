@@ -1,3 +1,9 @@
+sophomorix4 (7.4.5) lmn74; urgency=medium
+
+  * [sophomorix-passwd] Use diceware from debian packages. 
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sat, 19 Sep 2026 17:08:10 +0200
+
 sophomorix4 (7.4.4) lmn74; urgency=medium
 
   * [sophomorix-class] Clean up the <class>-teachers/-students/-parents
