@@ -1,10 +1,10 @@
-# Release Notes – sophomorix 7.4
+# 🚀 Release Notes – sophomorix 7.4
 
 **Package version:** 7.4.1 – 7.4.5
 
 ---
 
-## Overview
+## 📋 Overview
 
 A much lighter cycle for the core sophomorix scripts than for the rest of
 the stack — most of the 7.4 work happened in the layers above it
@@ -12,7 +12,7 @@ the stack — most of the 7.4 work happened in the layers above it
 
 ---
 
-## Schoolclass subgroups
+## 🏫 Schoolclass subgroups
 
 - `sophomorix-class` cleans up the `<class>-teachers` / `-students` /
   `-parents` subgroups when a schoolclass is killed: it used to delete the
@@ -22,7 +22,7 @@ the stack — most of the 7.4 work happened in the layers above it
 
 ---
 
-## Other changes
+## 🔧 Other changes
 
 - Configurable login-name format: separator, regex and maximum length can
   now be set instead of being hardcoded (@hermanntoast).
