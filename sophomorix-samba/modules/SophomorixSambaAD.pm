@@ -544,24 +544,27 @@ sub AD_gpo_listall {
     my $ref_result = $arg_ref->{sophomorix_result};
     my %gpo=();
     my $gpo_listall_command=$ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SAMBA_TOOL'}." gpo listall";
-    print "$gpo_listall_command (and: gpo listcontainers)\n";
+    print "$gpo_listall_command\n";
     $gpo_listall_out=`$gpo_listall_command`;
     my $gpo_listall_return=${^CHILD_ERROR_NATIVE}; # return of value of last command
   
-    $gpo_out="";
+    # $gpo_out is never read (see #190)
+    #$gpo_out="";
 
     my @lines=split(/\n/,$gpo_listall_out);
     push @lines, ""; # add empty line to allow to finalize last gpo
     my $gpo_current="";
     foreach my $line (@lines){
         if ($line eq ""){
-            my $gpo_listcontainers_command=$ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SAMBA_TOOL'}.
-                " gpo listcontainers $gpo_current";
-            $gpo_listcontainers_out=`$gpo_listcontainers_command`;
+            # gpo listcontainers is not used anymore: its output only fed $gpo_out,
+            # which is never read (see #190). Each call costs a Kerberos login.
+            #my $gpo_listcontainers_command=$ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SAMBA_TOOL'}.
+            #    " gpo listcontainers $gpo_current";
+            #$gpo_listcontainers_out=`$gpo_listcontainers_command`;
 	    #print $gpo_listcontainers_command."\n";
 	    #print $gpo_listcontainers_out."\n";
 
-            $gpo_out=$gpo_out."  ".$gpo_listcontainers_out."\n";
+            #$gpo_out=$gpo_out."  ".$gpo_listcontainers_out."\n";
             # ???? analyze $listcontainers_out for json
 
             next;
@@ -571,12 +574,12 @@ sub AD_gpo_listall {
         $key=&Sophomorix::SophomorixBase::remove_embracing_whitespace($key);
         $value=&Sophomorix::SophomorixBase::remove_embracing_whitespace($value);
         if ($key eq "GPO"){
-	    $gpo_out=$gpo_out."\n".$line."\n";
+	    #$gpo_out=$gpo_out."\n".$line."\n";
             # update current gpo name 
             $gpo_current=$value;
             $gpo{'GPO'}{$value}{'EXISTING'}="TRUE";
 	} else{
-            $gpo_out=$gpo_out.$line."\n";
+            #$gpo_out=$gpo_out.$line."\n";
             # store key value
             $gpo{'GPO'}{$gpo_current}{$key}=$value;
             if ($key eq "display name"){
