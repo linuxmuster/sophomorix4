@@ -109,7 +109,13 @@ Text
 
 .B MAIL_LOCAL_PART_SCHEME
 
-Text
+Bildet den lokalen Teil der Mailadresse (vor dem @). Erlaubte Werte:
+firstname, lastname, firstname.lastname, lastname.firstname, manual.
+Leer: Loginname.
+
+manual: eine bereits vorhandene Mailadresse wird nicht mehr überschrieben.
+Neue Benutzer und Benutzer ohne Mailadresse (oder mit NONE) bekommen den Loginname.
+MAIL_LOCAL_PART_MAP und MAILDOMAIN=NONE haben Vorrang.
 
 .B MAIL_LOCAL_PART_MAP
 

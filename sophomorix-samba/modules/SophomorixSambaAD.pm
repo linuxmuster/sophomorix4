@@ -5859,7 +5859,8 @@ sub AD_create_new_mail {
 	$lastname_old,
 	$lastname_new,
 	$filename_new,
-	$class_new) = @_;
+	$class_new,
+	$mail_old) = @_;
 
     my $firstname;
     if ($firstname_new ne "---"){
@@ -5902,23 +5903,36 @@ sub AD_create_new_mail {
 	$mail_local_part=$firstname.".".$lastname;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "lastname.firstname"){
 	$mail_local_part=$lastname.".".$firstname;
+    } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "manual"){
+	# keep the existing address, see below: new users get the default
+	$mail_local_part=$sam;
     } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} ne ""){
         my $error_message="$ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} not allowed as 'MAIL_LOCAL_PART_SCHEME' in school '".$school_file.
-                          "' | Allowed: firstname|lastname|firstname.lastname|lastname.firstname";
+                          "' | Allowed: firstname|lastname|firstname.lastname|lastname.firstname|manual";
         &Sophomorix::SophomorixBase::log_script_exit($error_message,1,1,0,
                          $ref_arguments,$ref_sophomorix_result,$ref_sophomorix_config,$json);
 
     }
 
     # override MAIL_LOCAL_PART by MAIL_LOCAL_PART_MAP, if there
+    my $mail_local_part_mapped=0;
     if (exists $ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_MAP_LOOKUP'}{$sam}{'MAIL_LOCAL_PART'}){
         $mail_local_part=$ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_MAP_LOOKUP'}{$sam}{'MAIL_LOCAL_PART'};
         $ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_MAP_LOOKUP'}{$sam}{'USED'}="TRUE";
+        $mail_local_part_mapped=1;
     }
 
     # MAILDOMAIN part
     if ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAILDOMAIN'} eq "NONE"){
         $mail="NONE";
+    } elsif ($ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAIL_LOCAL_PART_SCHEME'} eq "manual" and
+             $mail_local_part_mapped==0 and
+             defined $mail_old and
+             $mail_old ne "" and
+             $mail_old ne "NONE"){
+        # MAIL_LOCAL_PART_SCHEME=manual: keep the existing address
+        # NONE is left by a former MAILDOMAIN=NONE, it is not an address
+        $mail=$mail_old;
     } else {
 	# set maildomain by role
         my $maildomain=$ref_sophomorix_config->{'ROLES'}{$school}{$role}{'MAILDOMAIN'};
