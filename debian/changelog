@@ -1,3 +1,17 @@
+sophomorix4 (7.4.6) lmn74; urgency=medium
+
+  * [sophomorix-device] AD_gpo_listall() no longer runs samba-tool gpo
+    listcontainers for each GPO: its output was never read, and each
+    call cost about 1.5 s on every run. Fix #190, reported by
+    @Pasemesan.
+  * [school.conf] New "manual" value for MAIL_LOCAL_PART_SCHEME: an
+    existing mail address is no longer overwritten, new users and users
+    without an address get their login name. MAIL_LOCAL_PART_MAP and
+    MAILDOMAIN=NONE take precedence. Extends #188, reported by
+    @hermanntoast.
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 11 Oct 2026 10:30:00 +0200
+
 sophomorix4 (7.4.5) lmn74; urgency=medium
 
   * [sophomorix-passwd] Use diceware from debian packages. 
