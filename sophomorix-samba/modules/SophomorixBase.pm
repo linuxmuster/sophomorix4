@@ -6204,6 +6204,10 @@ sub create_plain_password {
         my $random_letter = $letters[int rand @letters];
         $password=$random_letter.$birthdate;
     } else {
+        # The loop below needs one char of each of the 4 classes
+        if ($num < 4){
+            die "ERROR: a random password needs at least 4 characters, $num given\n";
+        }
         until ($password=~m/[!\$&\(\)?]/ and 
                $password=~m/[a-z]/ and 
                $password=~m/[A-Z]/ and
