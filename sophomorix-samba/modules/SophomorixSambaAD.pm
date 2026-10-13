@@ -3479,7 +3479,6 @@ sub AD_user_setquota {
 
     ############################################################
     # run the command
-    print "HERE: $smbcquotas_command\n";
     $smbcquotas_out=`$smbcquotas_command`;
     my $smbcquotas_return=${^CHILD_ERROR_NATIVE}; # return of value of last command
 
