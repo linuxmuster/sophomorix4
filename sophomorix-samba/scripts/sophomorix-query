@@ -251,9 +251,12 @@ if (not defined $options{'json'}){
 
 my ($ldap,$root_dse) = &AD_bind_admin();
 my $root_dns="";
+my %smb_config=();
 if (defined $options{'quota-usage'}){
     $root_dns=&get_root_dns();
     use Math::Round;
+    # Shares served by another fileserver (DFS) must be queried there.
+    &Sophomorix::SophomorixBase::read_smb_net_conf_list(\%smb_config);
 }
 ############################################################
 
@@ -1079,12 +1082,23 @@ for( my $index = 0 ; $index < $max ; $index++) {
     if (defined $options{'quota-usage'}){
         foreach my $sophomorix_quota (@{$search{$top_key}{$sam}{'sophomorixQuota'} }){
             my ($share,$value,$oldcalc,$quotastatus,$comment)=split(/:/,$sophomorix_quota);
+            my $target="//".$root_dns."/".$share;
+            if (exists $smb_config{'samba'}{'net_conf_list'}{$share}{'msdfs root'} and
+                $smb_config{'samba'}{'net_conf_list'}{$share}{'msdfs root'} eq 'yes'){
+                $target=$smb_config{'samba'}{'net_conf_list'}{$share}{'msdfs proxy'};
+            }
             my $smbcquotas_command="/usr/bin/smbcquotas -U administrator%`cat /etc/linuxmuster/.secret/administrator`".
-                " -u $sam //".$root_dns."/".$share." 2> /dev/null";
+                " -u $sam ".$target." 2> /dev/null";
             #print "   $smbcquotas_command\n";
             # run the command
             my $smbcquotas_out=`$smbcquotas_command`;
             my $smbcquotas_return=${^CHILD_ERROR_NATIVE}; # return of value of last command
+
+            # A failed query has no output, which would read as 0 MiB used.
+            if ($smbcquotas_return!=0 or $smbcquotas_out!~m/:/){
+                $search{$top_key}{$sam}{'QUOTA_USAGE_BY_SHARE'}{$share}{'ERROR'}="smbcquotas failed on $target";
+                next;
+            }
 
             my ($full_user,
                 $quota_user,
