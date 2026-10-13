@@ -9514,6 +9514,15 @@ sub AD_smbcquotas_queryuser {
     my ($root_dns,$smb_admin_pass,$user,$share,$ref_sophomorix_config)=@_;
     print "Querying smbcquotas of user $user on share $share\n";
     my $smbcquotas_command;
+
+    # Resolve DFS shares to the actual fileserver, as AD_user_setquota does.
+    my $quota_share = "//".
+        $ref_sophomorix_config->{'samba'}{'from_smb.conf'}{'ServerDNS'}.
+        "/$share";
+    if (exists $ref_sophomorix_config->{'samba'}{'net_conf_list'}{$share}{'msdfs root'} and
+        $ref_sophomorix_config->{'samba'}{'net_conf_list'}{$share}{'msdfs root'} eq 'yes') {
+        $quota_share=$ref_sophomorix_config->{'samba'}{'net_conf_list'}{$share}{'msdfs proxy'};
+    }
     if ($ref_sophomorix_config->{'linux'}{'lsb-release'}{'DISTRIB_RELEASE'} eq "18.04"){
 	# switch back to old protocol
         $smbcquotas_command=
@@ -9521,7 +9530,7 @@ sub AD_smbcquotas_queryuser {
         " -mNT1".
         " -U ".$DevelConf::sophomorix_file_admin."%'".
         $smb_admin_pass."'".
-	    " -u $user //".$ref_sophomorix_config->{'samba'}{'from_smb.conf'}{'ServerDNS'}."/$share";
+	    " -u $user ".$quota_share;
     } else {
         # ubuntu 22.04 or later expected, no -mNT1 option available
         $smbcquotas_command=
@@ -9529,7 +9538,7 @@ sub AD_smbcquotas_queryuser {
         " ".$ref_sophomorix_config->{'INI'}{'EXECUTABLES'}{'SMBCQUOTAS_PROTOCOL_OPT'}.
         " -U ".$DevelConf::sophomorix_file_admin."%'".
         $smb_admin_pass."'".
-	    " -u $user //".$ref_sophomorix_config->{'samba'}{'from_smb.conf'}{'ServerDNS'}."/$share";
+	    " -u $user ".$quota_share;
     }
     my $display_command=$smbcquotas_command;
 
