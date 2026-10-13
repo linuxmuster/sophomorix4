@@ -3486,7 +3486,7 @@ sub AD_user_setquota {
     # display result
     my $display_command=$smbcquotas_command;
     # hide password
-    $display_command=~s/$smb_admin_pass/***/;
+    $display_command=~s/\Q$smb_admin_pass\E/***/;
     my $smbcquotas_out_ident=&Sophomorix::SophomorixBase::ident_output($smbcquotas_out,8);
     if($smbcquotas_return==0){
         print "OK: $display_command\n";
@@ -9534,10 +9534,10 @@ sub AD_smbcquotas_queryuser {
     my $display_command=$smbcquotas_command;
 
     # hide password
-    $display_command=~s/$smb_admin_pass/******/;
+    $display_command=~s/\Q$smb_admin_pass\E/******/;
 
     # my $string=`$smbcquotas_command`;
-    my ($return_value,@out_lines)=&Sophomorix::SophomorixBase::smb_command($smbcquotas_command,$smb_admin_pass);
+    my ($return_value,@out_lines)=&Sophomorix::SophomorixBase::smb_command($display_command,$smb_admin_pass);
     if (not $return_value==0){
         return("not available","not available","not available","not available","not available","not available","not available","not available","not available");
     }
@@ -9576,7 +9576,7 @@ sub AD_smbcquotas_queryuser {
     }
 
     if($Conf::log_level>=3){
-        print "$smbcquotas_command\n";
+        print "$display_command\n";
         print "   USER: <$userstring>\n";
         print "   USED: <$used> <$used_kib>KiB\n";
         print "   SOFT: <$soft> <$soft_kib>KiB\n";
