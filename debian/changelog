@@ -1,3 +1,22 @@
+sophomorix4 (7.4.7) lmn74; urgency=medium
+
+  * [security] [sophomorix-quota] The smbcquotas command was printed with
+    the administrator password in clear: on every quota set
+    (AD_user_setquota), and when querying a user (--smbcquotas,
+    --smbcquotas-only). The password is masked, including one holding
+    regex special characters.
+  * [sophomorix-quota] A user's quota is queried on the DFS target of a
+    share served by another fileserver, as it already was when setting
+    it.
+  * [sophomorix-query] --quota-usage queries the DFS target of a share
+    served by another fileserver, and reports a failed query as an
+    error instead of 0 MiB used.
+  * [sophomorix-passwd] A random password shorter than 4 characters is
+    refused with an error instead of looping forever: it needs one
+    character of each of the 4 classes.
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Sun, 25 Oct 2026 22:45:00 +0100
+
 sophomorix4 (7.4.6) lmn74; urgency=medium
 
   * [sophomorix-device] AD_gpo_listall() no longer runs samba-tool gpo
