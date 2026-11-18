@@ -1,3 +1,12 @@
+sophomorix4 (7.4.8) lmn74; urgency=high
+
+  * [security] [sophomorix-exam-mode] --subdir is validated, and the
+    commands are run without shell.
+  * [sophomorix-passwd] --random is refused for users of a file with
+    dice passwords.
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Wed, 18 Nov 2026 09:05:08 +0100
+
 sophomorix4 (7.4.7) lmn74; urgency=medium
 
   * [security] [sophomorix-quota] The smbcquotas command was printed with
