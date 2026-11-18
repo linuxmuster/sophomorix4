@@ -3529,7 +3529,11 @@ sub run_hook_scripts {
 # command execution 
 ######################################################################
 sub call_sophomorix_command {
-    my ($log_level,$json,$command)=@_;
+    # $ref_command: list of the program and its arguments, run without a shell
+    my ($log_level,$json,$ref_command)=@_;
+    if (ref($ref_command) ne 'ARRAY'){
+        die "call_sophomorix_command: the command must be a list (array ref)\n";
+    }
     my $all_opt="";
     if ($log_level==2){
 	$all_opt=$all_opt."v";
@@ -3543,12 +3547,12 @@ sub call_sophomorix_command {
     } elsif ($json==3){
         $all_opt=$all_opt."jjj";
     }
+    my @command=@{ $ref_command };
     if ($all_opt ne ""){
-        $all_opt="-".$all_opt;
+        push @command, "-".$all_opt;
     }
-    my $full_command=$command." ".$all_opt;
-    print "$full_command\n";
-    system($full_command);
+    print join(" ",@command)."\n";
+    system { $command[0] } @command;
 }
 
 
