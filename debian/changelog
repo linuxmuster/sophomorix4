@@ -1,3 +1,10 @@
+sophomorix4 (7.3.17) lmn73; urgency=high
+
+  * [security] [sophomorix-exam-mode] --subdir is validated, and the
+    commands are run without shell.
+
+ -- Arnaud Kientz <arnaud@linuxmuster.net>  Wed, 18 Nov 2026 10:43:04 +0100
+
 sophomorix4 (7.3.16) lmn73; urgency=medium
 
   * Allow password print of staff and parents.
