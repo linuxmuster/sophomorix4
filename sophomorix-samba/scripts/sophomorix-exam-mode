@@ -250,6 +250,12 @@ if ($unset_exam_mode==1){
         exit 88;
     }
 
+    # escape subdir name
+    if (defined $subdir and not $subdir=~m/^[A-Za-z0-9_\-\/]+$/){
+        print "\nERROR: --subdir may only contain A-Z, a-z, 0-9, _, - and /\n\n";
+        exit 88;
+    }
+
     my @participants=split(/,/,$participants);
     my $user_count=0;
     my $max_user_count=$#participants+1;
